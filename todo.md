@@ -1,0 +1,85 @@
+# Project TODO
+
+- [x] Configuration du thème et des couleurs (palette médicale)
+- [x] Navigation par onglets (4 tabs : Accueil, Journal, Urgence, Profil)
+- [x] Écran d'accueil avec indicateur de statut en temps réel
+- [x] Logique de détection de crises via accéléromètre + gyroscope (FFT simplifié)
+- [x] Système d'alertes visuelles (vert/orange/rouge)
+- [x] Bouton ON/OFF de surveillance
+- [x] Compte à rebours d'annulation (fausse alerte)
+- [x] Écran Journal des crises avec historique (FlatList)
+- [x] Ajout manuel de crise dans le journal
+- [x] Filtres par période (7j, 30j, 90j, tout)
+- [x] Statistiques résumées (nombre de crises, durée moyenne)
+- [x] Écran Contacts d'urgence
+- [x] Ajout/suppression de contacts d'urgence
+- [x] Bouton SOS manuel
+- [x] Message d'alerte personnalisé
+- [x] Écran Profil médical
+- [x] Informations personnelles et médicales
+- [x] Paramètres de sensibilité de détection
+- [x] Préférences (notifications, vibration, son)
+- [x] Stockage local avec AsyncStorage
+- [x] Génération du logo de l'application
+- [x] Tests unitaires (18 tests passés)
+- [x] Section Informations sur l'epilepsie (types de crises, premiers secours, ressources)
+- [x] Suivi medical ameliore avec statistiques detaillees et graphiques
+- [x] Appel d'urgence automatique complet (apres fin du compte a rebours)
+- [x] Export de rapport medical (partage avec le medecin)
+- [x] Tests et ajustements finaux (29 tests passes)
+- [x] Écran de bienvenue / onboarding multi-étapes (bienvenue, profil médical, contacts d'urgence, confirmation)
+- [x] Persistance de l'état onboarding (ne s'affiche qu'à la première ouverture)
+- [x] Intégration dans le flux de navigation (redirection conditionnelle)
+- [x] Notifications locales (permission, envoi d'alertes de crise)
+- [x] Service de notifications (module utilitaire réutilisable)
+- [x] Détection en arrière-plan via TaskManager + BackgroundFetch
+- [x] Notification persistante de surveillance active
+- [x] Intégration du background monitoring dans l'écran d'accueil
+- [x] Indicateur visuel du mode arrière-plan dans l'UI
+- [x] Module de connexion BLE (Bluetooth Low Energy) pour montres connectees- [x] Scan et appairage des appareils BLE a proximiteé
+- [x] Lecture des donnees de rythme cardiaque (service 0x180D, caracteristique 0x2A37)
+- [x] Lecture des donnees d'accelerometre de la montre (si disponible)
+- [x] Integration des donnees de la montre dans l'algorithme de detection (multi-source)
+- [x] Detection amelioree : tachycardie + mouvements anormaux = score de confiance plus eleve
+- [x] Ecran de gestion de la montre connectee (scan, connexion, etat, donnees en temps reel)
+- [x] Indicateur de connexion montre sur l'ecran d'accueil
+- [x] Persistance de l'appareil appaire (reconnexion automatique)
+- [x] Tests unitaires pour le module montre connectee (29 tests passes)
+- [x] Enregistrement automatique de la durée réelle de la crise (début alarme → fin/annulation)
+- [x] Classification automatique de l'intensité basée sur les données capteurs (accéléromètre + gyroscope + rythme cardiaque)
+- [x] Enrichir le modèle SeizureEvent avec données capteurs (peakAcceleration, avgHeartRate, detectionConfidence)
+- [x] Écran de détail d'une crise (vue complète avec toutes les données enregistrées)
+- [x] Améliorer l'affichage du journal avec durée, intensité et indicateurs visuels enrichis
+- [x] Tests unitaires pour le calcul automatique de durée et d'intensité (110 tests passés)
+- [x] Installer le package twilio côté serveur
+- [x] Créer l'endpoint API serveur pour l'envoi de SMS via Twilio (server/sms-service.ts + routers.ts)
+- [x] Configurer les variables d'environnement Twilio (ACCOUNT_SID, AUTH_TOKEN, PHONE_NUMBER)
+- [x] Créer le client SMS côté app (lib/emergency-sms-client.ts)
+- [x] Intégrer l'envoi automatique de SMS dans le flux de détection (countdown terminé → SMS Twilio)
+- [x] Fallback vers l'app SMS native si Twilio n'est pas configuré
+- [x] Notifications push Expo enrichies (SMS envoyé, SMS non configuré, push token)
+- [x] Indicateur de configuration SMS sur l'écran Urgence
+- [x] Bouton de test SMS sur l'écran Urgence
+- [x] Bouton SOS amélioré (appel + SMS Twilio automatique)
+- [x] Tests unitaires pour l'intégration SMS et notifications (114 tests passés)
+- [x] Guide d'obtention des clés API Twilio pour Magaly
+- [x] Installer expo-location et configurer les permissions GPS
+- [x] Créer le service de géolocalisation (lib/location-service.ts)
+- [x] Intégrer la position GPS dans les SMS d'urgence Twilio (lien Google Maps)
+- [x] Intégrer la géolocalisation dans le flux de détection de crise (écran d'accueil)
+- [x] Intégrer la géolocalisation dans le bouton SOS (écran urgence)
+- [x] Afficher la position dans l'écran de détail d'une crise (journal)
+- [x] Tests unitaires pour le service de géolocalisation (128 tests passés)
+- [ ] Système de rappels de prise de traitement (modèle de données : médicament, dosage, horaires)
+- [ ] Interface d'ajout/modification/suppression de rappels de traitement
+- [ ] Notifications récurrentes pour les rappels de traitement (expo-notifications scheduling)
+- [ ] Suivi de prise (confirmer/reporter/ignorer une prise)
+- [ ] Historique des prises de traitement
+- [ ] Historique des alertes envoyées (log de chaque SMS, appel, notification)
+- [ ] Affichage de l'historique des alertes (destinataire, heure, type, statut)
+- [ ] Intégration du log d'alertes dans le flux de détection et le SOS
+- [ ] Mode nuit pour la surveillance nocturne (thème sombre renforcé, luminosité réduite)
+- [ ] Écran toujours allumé en mode nuit (expo-keep-awake)
+- [ ] Indicateur visuel simplifié en mode nuit (gros indicateur de statut)
+- [ ] Activation/désactivation du mode nuit depuis l'écran d'accueil
+- [ ] Tests unitaires pour les trois nouvelles fonctionnalités
