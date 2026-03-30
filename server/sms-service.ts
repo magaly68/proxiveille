@@ -38,6 +38,64 @@ interface BulkSmsResult {
   }>;
 }
 
+export interface SmsConfigResult {
+  configured: boolean;
+  valid: boolean;
+  error?: string;
+  warning?: string;
+  accountStatus?: string;
+  senderNumber?: string;
+  senderSmsCapable?: boolean;
+  isTrial?: boolean;
+}
+
+const E164_PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
+
+export function normalizePhoneNumber(rawPhoneNumber: string): string | null {
+  const trimmed = rawPhoneNumber.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const sanitized = trimmed
+    .replace(/\(0\)/g, "")
+    .replace(/[\s().-]/g, "")
+    .replace(/^00/, "+");
+
+  const plusCount = (sanitized.match(/\+/g) ?? []).length;
+  if (plusCount > 1 || !sanitized.startsWith("+")) {
+    return null;
+  }
+
+  return E164_PHONE_REGEX.test(sanitized) ? sanitized : null;
+}
+
+function getPhoneFormatError(label: string): string {
+  return `${label} doit etre au format international E.164, par exemple +33612345678.`;
+}
+
+function formatTwilioError(error: any): string {
+  const code = typeof error?.code === "number" ? error.code : undefined;
+  const baseMessage = error?.message || "Unknown error";
+
+  switch (code) {
+    case 21211:
+      return `Numero invalide. ${getPhoneFormatError("Le numero destinataire")} (Twilio ${code}).`;
+    case 21608:
+      return `Le numero destinataire n'est pas verifie dans votre compte Twilio d'essai (Twilio ${code}).`;
+    case 21606:
+      return `Le numero Twilio configure ne peut pas envoyer de SMS vers cette destination (Twilio ${code}).`;
+    case 21408:
+      return `Les SMS vers ce pays ou cette region ne sont pas actives sur votre compte Twilio (Twilio ${code}).`;
+    case 21610:
+      return `Le destinataire a repondu STOP ou ne souhaite plus recevoir de SMS (Twilio ${code}).`;
+    case 63038:
+      return `Le compte Twilio d'essai a depasse sa limite quotidienne de messages (Twilio ${code}).`;
+    default:
+      return code ? `${baseMessage} (Twilio ${code})` : baseMessage;
+  }
+}
+
 function getTwilioClient() {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -58,7 +116,13 @@ function getTwilioPhoneNumber(): string {
       "Twilio phone number not configured. Please set TWILIO_PHONE_NUMBER."
     );
   }
-  return phoneNumber;
+
+  const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+  if (!normalizedPhoneNumber) {
+    throw new Error(getPhoneFormatError("TWILIO_PHONE_NUMBER"));
+  }
+
+  return normalizedPhoneNumber;
 }
 
 /**
@@ -68,23 +132,32 @@ export async function sendSms(params: SendSmsParams): Promise<SendSmsResult> {
   try {
     const client = getTwilioClient();
     const from = getTwilioPhoneNumber();
+    const normalizedTo = normalizePhoneNumber(params.to);
+
+    if (!normalizedTo) {
+      return {
+        success: false,
+        error: getPhoneFormatError("Le numero destinataire"),
+      };
+    }
 
     const message = await client.messages.create({
       body: params.body,
       from,
-      to: params.to,
+      to: normalizedTo,
     });
 
-    console.log(`[SMS] Message sent to ${params.to}: ${message.sid}`);
+    console.log(`[SMS] Message sent to ${normalizedTo}: ${message.sid}`);
     return {
       success: true,
       messageId: message.sid,
     };
   } catch (error: any) {
-    console.error(`[SMS] Failed to send to ${params.to}:`, error.message);
+    const formattedError = formatTwilioError(error);
+    console.error(`[SMS] Failed to send to ${params.to}:`, formattedError);
     return {
       success: false,
-      error: error.message || "Unknown error",
+      error: formattedError,
     };
   }
 }
@@ -200,11 +273,7 @@ export async function sendBulkEmergencySms(
 /**
  * Verify that Twilio credentials are configured and valid
  */
-export async function verifyTwilioConfig(): Promise<{
-  configured: boolean;
-  valid: boolean;
-  error?: string;
-}> {
+export async function verifyTwilioConfig(): Promise<SmsConfigResult> {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
   const phoneNumber = process.env.TWILIO_PHONE_NUMBER;
@@ -217,19 +286,71 @@ export async function verifyTwilioConfig(): Promise<{
     };
   }
 
+  const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+  if (!normalizedPhoneNumber) {
+    return {
+      configured: true,
+      valid: false,
+      error: getPhoneFormatError("TWILIO_PHONE_NUMBER"),
+    };
+  }
+
   try {
     const client = new Twilio.Twilio(accountSid, authToken);
     // Verify account by fetching account info
     const account = await client.api.accounts(accountSid).fetch();
+    const incomingNumbers = await client.incomingPhoneNumbers.list({
+      phoneNumber: normalizedPhoneNumber,
+      limit: 1,
+    });
+    const senderNumber = incomingNumbers[0] as any;
+    const senderSmsCapable = Boolean(
+      senderNumber?.capabilities?.SMS ?? senderNumber?.capabilities?.sms
+    );
+    const isTrial = String((account as any)?.type ?? "")
+      .toLowerCase()
+      .includes("trial");
+
+    if (!senderNumber) {
+      return {
+        configured: true,
+        valid: false,
+        error: "Le numero Twilio configure n'existe pas dans ce compte Twilio.",
+        accountStatus: account.status,
+        senderNumber: normalizedPhoneNumber,
+        isTrial,
+      };
+    }
+
+    if (!senderSmsCapable) {
+      return {
+        configured: true,
+        valid: false,
+        error: "Le numero Twilio configure n'est pas compatible SMS.",
+        accountStatus: account.status,
+        senderNumber: normalizedPhoneNumber,
+        senderSmsCapable,
+        isTrial,
+      };
+    }
+
     return {
       configured: true,
       valid: account.status === "active",
+      warning: isTrial
+        ? "Compte Twilio d'essai detecte: les SMS ne partent que vers des numeros verifies dans la console Twilio."
+        : undefined,
+      accountStatus: account.status,
+      senderNumber: normalizedPhoneNumber,
+      senderSmsCapable,
+      isTrial,
     };
   } catch (error: any) {
     return {
       configured: true,
       valid: false,
-      error: error.message || "Invalid credentials",
+      error: formatTwilioError(error),
+      senderNumber: normalizedPhoneNumber,
     };
   }
 }

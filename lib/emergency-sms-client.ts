@@ -1,14 +1,11 @@
 import { Platform } from "react-native";
+import { getApiBaseUrl } from "@/constants/oauth";
 import {
   sendSmsSentNotification,
   sendSmsNotConfiguredNotification,
   sendEmergencyContactsAlertedNotification,
 } from "./notification-service";
 import { getEmergencyLocation } from "./location-service";
-
-// API base URL for the backend
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || "http://127.0.0.1:3000";
 
 interface EmergencyContact {
   name: string;
@@ -44,6 +41,8 @@ export async function sendEmergencySmsToContacts(
   seizureInfo: SeizureInfo,
   location?: string
 ): Promise<SmsResult | null> {
+  const apiBaseUrl = getApiBaseUrl();
+
   // Filter contacts that have phone numbers
   const validContacts = contacts.filter(
     (c) => c.phone && c.phone.trim().length > 0
@@ -78,9 +77,17 @@ export async function sendEmergencySmsToContacts(
     }
   }
 
+  if (!apiBaseUrl) {
+    console.warn("[EmergencySMS] API base URL is not configured for this build");
+    if (Platform.OS !== "web") {
+      await sendSmsNotConfiguredNotification();
+    }
+    return null;
+  }
+
   try {
     // Call the backend API to send SMS via Twilio
-    const response = await fetch(`${API_BASE_URL}/api/trpc/emergency.sendEmergencySms`, {
+    const response = await fetch(`${apiBaseUrl}/api/trpc/emergency.sendEmergencySms`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -138,10 +145,25 @@ export async function checkSmsConfiguration(): Promise<{
   configured: boolean;
   valid: boolean;
   error?: string;
+  warning?: string;
+  accountStatus?: string;
+  senderNumber?: string;
+  senderSmsCapable?: boolean;
+  isTrial?: boolean;
 }> {
+  const apiBaseUrl = getApiBaseUrl();
+
+  if (!apiBaseUrl) {
+    return {
+      configured: false,
+      valid: false,
+      error: "API backend non configuree pour cette build Android",
+    };
+  }
+
   try {
     const response = await fetch(
-      `${API_BASE_URL}/api/trpc/emergency.checkSmsConfig`,
+      `${apiBaseUrl}/api/trpc/emergency.checkSmsConfig`,
       {
         method: "GET",
         headers: {
@@ -173,8 +195,17 @@ export async function sendTestSms(
   phoneNumber: string,
   patientName?: string
 ): Promise<{ success: boolean; error?: string }> {
+  const apiBaseUrl = getApiBaseUrl();
+
+  if (!apiBaseUrl) {
+    return {
+      success: false,
+      error: "API backend non configuree pour cette build Android",
+    };
+  }
+
   try {
-    const response = await fetch(`${API_BASE_URL}/api/trpc/emergency.sendTestSms`, {
+    const response = await fetch(`${apiBaseUrl}/api/trpc/emergency.sendTestSms`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

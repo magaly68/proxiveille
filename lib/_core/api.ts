@@ -33,6 +33,10 @@ export async function apiCall<T>(endpoint: string, options: RequestInit = {}): P
   }
 
   const baseUrl = getApiBaseUrl();
+  if (Platform.OS !== "web" && !baseUrl) {
+    throw new Error("EXPO_PUBLIC_API_BASE_URL is required for Android API requests.");
+  }
+
   // Ensure no double slashes between baseUrl and endpoint
   const cleanBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;

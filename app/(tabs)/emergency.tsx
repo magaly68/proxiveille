@@ -33,26 +33,29 @@ export default function EmergencyScreen() {
 
   // SMS config state
   const [smsConfigured, setSmsConfigured] = useState<boolean | null>(null);
+  const [smsConfigMessage, setSmsConfigMessage] = useState<string | null>(null);
   const [smsChecking, setSmsChecking] = useState(false);
   const [testingSms, setTestingSms] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
-
-  // Check SMS configuration on mount
-  useEffect(() => {
-    checkSmsConfig();
-  }, []);
 
   const checkSmsConfig = useCallback(async () => {
     setSmsChecking(true);
     try {
       const result = await checkSmsConfiguration();
       setSmsConfigured(result.configured && result.valid);
+      setSmsConfigMessage(result.error || result.warning || null);
     } catch {
       setSmsConfigured(false);
+      setSmsConfigMessage("Impossible de verifier le service SMS.");
     } finally {
       setSmsChecking(false);
     }
   }, []);
+
+  // Check SMS configuration on mount
+  useEffect(() => {
+    checkSmsConfig();
+  }, [checkSmsConfig]);
 
   const handleAddContact = useCallback(() => {
     if (!name.trim() || !phone.trim()) return;
@@ -315,9 +318,11 @@ export default function EmergencyScreen() {
                 : "SMS Twilio non configure"}
           </Text>
           <Text style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-            {smsConfigured
-              ? "Les SMS seront envoyes automatiquement lors d'une crise"
-              : "Les SMS utiliseront l'app native du telephone en secours"}
+            {smsConfigMessage
+              ? smsConfigMessage
+              : smsConfigured
+                ? "Les SMS seront envoyes automatiquement lors d'une crise"
+                : "Les SMS utiliseront l'app native du telephone en secours"}
           </Text>
         </View>
         {smsChecking ? (
