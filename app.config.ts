@@ -1,7 +1,7 @@
 import "./scripts/load-env.js";
 import type { ExpoConfig } from "expo/config";
 
-const rawBundleId = "space.manus.epilepsy.guard.t20260324111720";
+const rawBundleId = "com.magaly.epiguard.alert";
 const bundleId =
   rawBundleId
     .replace(/[-_]/g, ".")
@@ -31,7 +31,7 @@ const config: ExpoConfig = {
   name: env.appName,
   slug: env.appSlug,
   platforms: ["android"],
-  version: "1.0.0",
+  version: "1.0.1",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
@@ -54,13 +54,7 @@ const config: ExpoConfig = {
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     package: env.androidPackage,
-    permissions: [
-      "POST_NOTIFICATIONS",
-      "android.permission.HIGH_SAMPLING_RATE_SENSORS",
-      "android.permission.BLUETOOTH_SCAN",
-      "android.permission.BLUETOOTH_CONNECT",
-      "android.permission.ACCESS_FINE_LOCATION",
-    ],
+    
     intentFilters: [
       {
         action: "VIEW",
@@ -83,7 +77,7 @@ const config: ExpoConfig = {
       locationAlwaysAndWhenInUsePermission: "EpiGuard a besoin de votre position pour l'inclure dans les alertes d'urgence envoyees a vos proches.",
       locationWhenInUsePermission: "EpiGuard a besoin de votre position pour l'inclure dans les alertes d'urgence.",
     }],
-    ["react-native-ble-plx", { isBackgroundEnabled: true, neverForLocation: true }],
+    
     ["expo-audio", { microphonePermission: "Allow $(PRODUCT_NAME) to access your microphone." }],
     ["expo-video", { supportsBackgroundPlayback: true, supportsPictureInPicture: true }],
     ["expo-splash-screen", {
