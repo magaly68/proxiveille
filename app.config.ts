@@ -19,8 +19,8 @@ const timestamp = bundleId.split(".").pop()?.replace(/^t/, "") ?? "";
 const schemeFromBundleId = `manus${timestamp}`;
 
 const env = {
-  appName: "EpiGuard",
-  appSlug: "epilepsy-guard",
+  appName: "ProxiVeille",
+  appSlug: "proxiveille",
   logoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310419663032625063/DSxYszaYCKpUMzQdsJmyhQ/epiguard-icon-ZcRGAKr5qNefo6gbnSk896.png",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
@@ -55,6 +55,8 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
     package: env.androidPackage,
     
+    versionCode: 6,
+
     intentFilters: [
       {
         action: "VIEW",
@@ -74,12 +76,10 @@ const config: ExpoConfig = {
     "expo-router",
     "expo-background-task",
     ["expo-location", {
-      locationAlwaysAndWhenInUsePermission: "EpiGuard a besoin de votre position pour l'inclure dans les alertes d'urgence envoyees a vos proches.",
-      locationWhenInUsePermission: "EpiGuard a besoin de votre position pour l'inclure dans les alertes d'urgence.",
+      locationAlwaysAndWhenInUsePermission: "ProxiVeille a besoin de votre position pour l'inclure dans les alertes d'urgence envoyees a vos proches.",
+      locationWhenInUsePermission: "ProxiVeille a besoin de votre position pour l'inclure dans les alertes d'urgence.",
     }],
     
-    ["expo-audio", { microphonePermission: "Allow $(PRODUCT_NAME) to access your microphone." }],
-    ["expo-video", { supportsBackgroundPlayback: true, supportsPictureInPicture: true }],
     ["expo-splash-screen", {
       image: "./assets/images/splash-icon.png",
       imageWidth: 200,
