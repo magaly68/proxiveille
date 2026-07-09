@@ -29,7 +29,9 @@ export default function EmergencyScreen() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [relation, setRelation] = useState("");
-  const [alertMessage, setAlertMessage] = useState(state.detectionSettings.alertMessage);
+  const [alertMessage, setAlertMessage] = useState(
+    state.detectionSettings.alertMessage,
+  );
 
   // SMS config state
   const [smsConfigured, setSmsConfigured] = useState<boolean | null>(null);
@@ -84,7 +86,7 @@ export default function EmergencyScreen() {
       }
       dispatch({ type: "REMOVE_CONTACT", payload: id });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleCallContact = useCallback((phoneNumber: string) => {
@@ -106,7 +108,7 @@ export default function EmergencyScreen() {
       } else {
         Alert.alert(
           "Aucun contact",
-          "Ajoutez au moins un contact d'urgence avant d'utiliser le bouton SOS."
+          "Ajoutez au moins un contact d'urgence avant d'utiliser le bouton SOS.",
         );
       }
       return;
@@ -119,7 +121,7 @@ export default function EmergencyScreen() {
     handleCallContact(firstContact.phone);
 
     // Send SMS to all contacts via Twilio
-    const patientName = state.medicalProfile.name || "Patient EpiGuard";
+    const patientName = state.medicalProfile.name || "Patient ProxiVeille";
     try {
       const result = await sendEmergencySmsToContacts(
         state.emergencyContacts.map((c) => ({ name: c.name, phone: c.phone })),
@@ -128,13 +130,15 @@ export default function EmergencyScreen() {
           timestamp: Date.now(),
           intensity: "high",
           detectionSource: "manual",
-        }
+        },
       );
 
       if (!result || result.totalSent === 0) {
         // Fallback to native SMS
         const phones = state.emergencyContacts.map((c) => c.phone).join(",");
-        const message = encodeURIComponent(state.detectionSettings.alertMessage);
+        const message = encodeURIComponent(
+          state.detectionSettings.alertMessage,
+        );
         const smsUrl =
           Platform.OS === "ios"
             ? `sms:${phones}&body=${message}`
@@ -171,21 +175,32 @@ export default function EmergencyScreen() {
     });
 
     setSosLoading(false);
-  }, [state.emergencyContacts, state.medicalProfile.name, state.detectionSettings.alertMessage, dispatch, handleCallContact]);
+  }, [
+    state.emergencyContacts,
+    state.medicalProfile.name,
+    state.detectionSettings.alertMessage,
+    dispatch,
+    handleCallContact,
+  ]);
 
   const handleTestSms = useCallback(async () => {
     if (state.emergencyContacts.length === 0) {
       if (Platform.OS === "web") {
-        alert("Ajoutez un contact d'urgence d'abord pour tester l'envoi de SMS.");
+        alert(
+          "Ajoutez un contact d'urgence d'abord pour tester l'envoi de SMS.",
+        );
       } else {
-        Alert.alert("Aucun contact", "Ajoutez un contact d'urgence pour tester l'envoi de SMS.");
+        Alert.alert(
+          "Aucun contact",
+          "Ajoutez un contact d'urgence pour tester l'envoi de SMS.",
+        );
       }
       return;
     }
 
     setTestingSms(true);
     const firstContact = state.emergencyContacts[0];
-    const patientName = state.medicalProfile.name || "Test EpiGuard";
+    const patientName = state.medicalProfile.name || "Test ProxiVeille";
 
     try {
       const result = await sendTestSms(firstContact.phone, patientName);
@@ -193,14 +208,14 @@ export default function EmergencyScreen() {
         alert(
           result.success
             ? `SMS de test envoye a ${firstContact.name} (${firstContact.phone})`
-            : `Echec de l'envoi : ${result.error || "Erreur inconnue"}`
+            : `Echec de l'envoi : ${result.error || "Erreur inconnue"}`,
         );
       } else {
         Alert.alert(
           result.success ? "SMS envoye" : "Echec",
           result.success
             ? `SMS de test envoye a ${firstContact.name} (${firstContact.phone})`
-            : `Echec de l'envoi : ${result.error || "Erreur inconnue. Verifiez la configuration Twilio."}`
+            : `Echec de l'envoi : ${result.error || "Erreur inconnue. Verifiez la configuration Twilio."}`,
         );
       }
     } catch (error: any) {
@@ -227,7 +242,9 @@ export default function EmergencyScreen() {
       <View className="bg-surface rounded-xl p-4 border border-border mb-3">
         <View className="flex-row justify-between items-start">
           <View className="flex-1">
-            <Text className="text-base font-semibold text-foreground">{item.name}</Text>
+            <Text className="text-base font-semibold text-foreground">
+              {item.name}
+            </Text>
             <Text className="text-sm text-muted mt-1">{item.relation}</Text>
             <Text className="text-sm text-primary mt-1">{item.phone}</Text>
           </View>
@@ -244,7 +261,13 @@ export default function EmergencyScreen() {
                 },
               ]}
             >
-              <Text style={{ fontSize: 13, fontWeight: "600", color: colors.success }}>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: "600",
+                  color: colors.success,
+                }}
+              >
                 Appeler
               </Text>
             </Pressable>
@@ -260,7 +283,9 @@ export default function EmergencyScreen() {
                 },
               ]}
             >
-              <Text style={{ fontSize: 13, fontWeight: "600", color: colors.error }}>
+              <Text
+                style={{ fontSize: 13, fontWeight: "600", color: colors.error }}
+              >
                 Suppr.
               </Text>
             </Pressable>
@@ -268,7 +293,7 @@ export default function EmergencyScreen() {
         </View>
       </View>
     ),
-    [colors, handleCallContact, handleRemoveContact]
+    [colors, handleCallContact, handleRemoveContact],
   );
 
   return (
@@ -308,7 +333,11 @@ export default function EmergencyScreen() {
             style={{
               fontSize: 13,
               fontWeight: "600",
-              color: smsConfigured ? colors.success : smsConfigured === false ? colors.warning : colors.muted,
+              color: smsConfigured
+                ? colors.success
+                : smsConfigured === false
+                  ? colors.warning
+                  : colors.muted,
             }}
           >
             {smsChecking
@@ -340,7 +369,9 @@ export default function EmergencyScreen() {
               },
             ]}
           >
-            <Text style={{ fontSize: 12, fontWeight: "600", color: colors.primary }}>
+            <Text
+              style={{ fontSize: 12, fontWeight: "600", color: colors.primary }}
+            >
               Verifier
             </Text>
           </Pressable>
@@ -368,7 +399,9 @@ export default function EmergencyScreen() {
         {testingSms ? (
           <ActivityIndicator size="small" color={colors.primary} />
         ) : (
-          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.primary }}>
+          <Text
+            style={{ fontSize: 14, fontWeight: "600", color: colors.primary }}
+          >
             Envoyer un SMS de test
           </Text>
         )}
@@ -466,7 +499,8 @@ export default function EmergencyScreen() {
         ListEmptyComponent={
           <View className="items-center py-12">
             <Text className="text-base text-muted text-center">
-              Aucun contact d'urgence{"\n"}Ajoutez vos proches pour etre alerte(s)
+              Aucun contact d'urgence{"\n"}Ajoutez vos proches pour etre
+              alerte(s)
             </Text>
           </View>
         }
@@ -604,7 +638,9 @@ export default function EmergencyScreen() {
                   },
                 ]}
               >
-                <Text style={{ fontWeight: "600", color: colors.muted }}>Annuler</Text>
+                <Text style={{ fontWeight: "600", color: colors.muted }}>
+                  Annuler
+                </Text>
               </Pressable>
               <Pressable
                 onPress={handleAddContact}
@@ -615,12 +651,16 @@ export default function EmergencyScreen() {
                     borderRadius: 12,
                     alignItems: "center",
                     backgroundColor:
-                      name.trim() && phone.trim() ? colors.primary : colors.muted,
+                      name.trim() && phone.trim()
+                        ? colors.primary
+                        : colors.muted,
                     opacity: pressed ? 0.85 : 1,
                   },
                 ]}
               >
-                <Text style={{ fontWeight: "600", color: "#FFFFFF" }}>Ajouter</Text>
+                <Text style={{ fontWeight: "600", color: "#FFFFFF" }}>
+                  Ajouter
+                </Text>
               </Pressable>
             </View>
           </View>
@@ -699,7 +739,9 @@ export default function EmergencyScreen() {
                   },
                 ]}
               >
-                <Text style={{ fontWeight: "600", color: colors.muted }}>Annuler</Text>
+                <Text style={{ fontWeight: "600", color: colors.muted }}>
+                  Annuler
+                </Text>
               </Pressable>
               <Pressable
                 onPress={handleSaveMessage}
@@ -714,7 +756,9 @@ export default function EmergencyScreen() {
                   },
                 ]}
               >
-                <Text style={{ fontWeight: "600", color: "#FFFFFF" }}>Sauvegarder</Text>
+                <Text style={{ fontWeight: "600", color: "#FFFFFF" }}>
+                  Sauvegarder
+                </Text>
               </Pressable>
             </View>
           </View>

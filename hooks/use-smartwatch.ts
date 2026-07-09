@@ -5,7 +5,7 @@
  */
 
 import { useCallback, useEffect, useReducer, useRef } from "react";
-import { Platform } from "react-native";
+import { PermissionsAndroid, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   BLE_SERVICES,
@@ -42,8 +42,34 @@ async function getBleManager() {
 
 const SCAN_TIMEOUT = 15000; // 15 seconds scan timeout
 
+async function requestBlePermissions(): Promise<boolean> {
+  if (Platform.OS !== "android") return true;
+
+  if (Number(Platform.Version) >= 31) {
+    const result = await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+    ]);
+
+    return (
+      result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] ===
+        PermissionsAndroid.RESULTS.GRANTED &&
+      result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] ===
+        PermissionsAndroid.RESULTS.GRANTED
+    );
+  }
+
+  const result = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  );
+  return result === PermissionsAndroid.RESULTS.GRANTED;
+}
+
 export function useSmartWatch() {
-  const [state, dispatch] = useReducer(smartWatchReducer, initialSmartWatchState);
+  const [state, dispatch] = useReducer(
+    smartWatchReducer,
+    initialSmartWatchState,
+  );
   const scanTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hrSubscriptionRef = useRef<any>(null);
   const reconnectAttempts = useRef(0);
@@ -88,6 +114,15 @@ export function useSmartWatch() {
    * Start scanning for BLE devices with Heart Rate service
    */
   const startScan = useCallback(async () => {
+    const hasPermissions = await requestBlePermissions();
+    if (!hasPermissions) {
+      dispatch({
+        type: "SET_ERROR",
+        payload: "Autorisez le Bluetooth pour rechercher votre montre",
+      });
+      return;
+    }
+
     const manager = await getBleManager();
     if (!manager) {
       dispatch({
@@ -133,7 +168,7 @@ export function useSmartWatch() {
             };
             dispatch({ type: "ADD_DISCOVERED_DEVICE", payload: bleDevice });
           }
-        }
+        },
       );
 
       // Auto-stop scan after timeout
@@ -170,62 +205,65 @@ export function useSmartWatch() {
   /**
    * Connect to a specific BLE device
    */
-  const connectToDevice = useCallback(async (deviceId: string, deviceName: string) => {
-    const manager = await getBleManager();
-    if (!manager) return;
+  const connectToDevice = useCallback(
+    async (deviceId: string, deviceName: string) => {
+      const manager = await getBleManager();
+      if (!manager) return;
 
-    await stopScan();
+      await stopScan();
 
-    try {
-      dispatch({ type: "SET_ERROR", payload: null });
+      try {
+        dispatch({ type: "SET_ERROR", payload: null });
 
-      // Connect to device
-      const device = await manager.connectToDevice(deviceId, {
-        requestMTU: 512,
-        timeout: 10000,
-      });
+        // Connect to device
+        const device = await manager.connectToDevice(deviceId, {
+          requestMTU: 512,
+          timeout: 10000,
+        });
 
-      // Discover services and characteristics
-      await device.discoverAllServicesAndCharacteristics();
+        // Discover services and characteristics
+        await device.discoverAllServicesAndCharacteristics();
 
-      // Save as paired device
-      const pairedDevice: PairedDevice = {
-        id: deviceId,
-        name: deviceName,
-        lastConnected: Date.now(),
-      };
-      await savePairedDevice(pairedDevice);
+        // Save as paired device
+        const pairedDevice: PairedDevice = {
+          id: deviceId,
+          name: deviceName,
+          lastConnected: Date.now(),
+        };
+        await savePairedDevice(pairedDevice);
 
-      dispatch({ type: "SET_DEVICE", payload: pairedDevice });
-      dispatch({ type: "SET_CONNECTED", payload: true });
-      reconnectAttempts.current = 0;
+        dispatch({ type: "SET_DEVICE", payload: pairedDevice });
+        dispatch({ type: "SET_CONNECTED", payload: true });
+        reconnectAttempts.current = 0;
 
-      // Start monitoring heart rate
-      await subscribeToHeartRate(device);
+        // Start monitoring heart rate
+        await subscribeToHeartRate(device);
 
-      // Read battery level
-      await readBatteryLevel(device);
+        // Read battery level
+        await readBatteryLevel(device);
 
-      // Monitor disconnection
-      manager.onDeviceDisconnected(deviceId, (error: any) => {
+        // Monitor disconnection
+        manager.onDeviceDisconnected(deviceId, (error: any) => {
+          dispatch({ type: "SET_CONNECTED", payload: false });
+          if (hrSubscriptionRef.current) {
+            hrSubscriptionRef.current.remove();
+            hrSubscriptionRef.current = null;
+          }
+          // Try to auto-reconnect
+          if (reconnectAttempts.current < maxReconnectAttempts) {
+            setTimeout(() => autoReconnect(deviceId), 3000);
+          }
+        });
+      } catch (error: any) {
+        dispatch({
+          type: "SET_ERROR",
+          payload: `Connexion echouee: ${error.message}`,
+        });
         dispatch({ type: "SET_CONNECTED", payload: false });
-        if (hrSubscriptionRef.current) {
-          hrSubscriptionRef.current.remove();
-          hrSubscriptionRef.current = null;
-        }
-        // Try to auto-reconnect
-        if (reconnectAttempts.current < maxReconnectAttempts) {
-          setTimeout(() => autoReconnect(deviceId), 3000);
-        }
-      });
-    } catch (error: any) {
-      dispatch({
-        type: "SET_ERROR",
-        payload: `Connexion echouee: ${error.message}`,
-      });
-      dispatch({ type: "SET_CONNECTED", payload: false });
-    }
-  }, []);
+      }
+    },
+    [],
+  );
 
   /**
    * Subscribe to heart rate notifications
@@ -246,7 +284,7 @@ export function useSmartWatch() {
               dispatch({ type: "SET_HEART_RATE", payload: hrData });
             }
           }
-        }
+        },
       );
     } catch (error: any) {
       console.log("Failed to subscribe to HR:", error.message);
@@ -260,7 +298,7 @@ export function useSmartWatch() {
     try {
       const characteristic = await device.readCharacteristicForService(
         BLE_SERVICES.BATTERY,
-        BLE_CHARACTERISTICS.BATTERY_LEVEL
+        BLE_CHARACTERISTICS.BATTERY_LEVEL,
       );
       if (characteristic?.value) {
         const bytes = atob(characteristic.value);

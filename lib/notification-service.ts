@@ -69,7 +69,7 @@ export async function sendSeizureAlertNotification(): Promise<void> {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: "Crise detectee !",
-      body: "EpiGuard a detecte une activite anormale. Les contacts d'urgence vont etre alertes.",
+      body: "ProxiVeille a detecte une activite anormale. Les contacts d'urgence vont etre alertes.",
       data: { type: "seizure_alert" },
       sound: "default",
       priority: Notifications.AndroidNotificationPriority.MAX,
@@ -82,7 +82,9 @@ export async function sendSeizureAlertNotification(): Promise<void> {
 /**
  * Send a countdown notification (crisis detected, waiting for user response)
  */
-export async function sendCountdownNotification(seconds: number): Promise<void> {
+export async function sendCountdownNotification(
+  seconds: number,
+): Promise<void> {
   if (Platform.OS === "web") return;
 
   await Notifications.scheduleNotificationAsync({
@@ -106,7 +108,7 @@ export async function sendMonitoringActiveNotification(): Promise<string> {
 
   const id = await Notifications.scheduleNotificationAsync({
     content: {
-      title: "EpiGuard - Surveillance active",
+      title: "ProxiVeille - Surveillance active",
       body: "La surveillance des crises est en cours. Votre securite est assuree.",
       data: { type: "monitoring_active" },
       sticky: true,
@@ -121,7 +123,9 @@ export async function sendMonitoringActiveNotification(): Promise<string> {
 /**
  * Dismiss the monitoring notification
  */
-export async function dismissMonitoringNotification(notificationId: string): Promise<void> {
+export async function dismissMonitoringNotification(
+  notificationId: string,
+): Promise<void> {
   if (Platform.OS === "web" || !notificationId) return;
   await Notifications.dismissNotificationAsync(notificationId);
 }
@@ -146,7 +150,9 @@ export async function sendFalseAlarmNotification(): Promise<void> {
 /**
  * Send an emergency contacts alerted notification
  */
-export async function sendEmergencyContactsAlertedNotification(contactCount: number): Promise<void> {
+export async function sendEmergencyContactsAlertedNotification(
+  contactCount: number,
+): Promise<void> {
   if (Platform.OS === "web") return;
 
   await Notifications.scheduleNotificationAsync({
@@ -170,7 +176,7 @@ export async function sendBackgroundStatusNotification(): Promise<void> {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: "Surveillance en arriere-plan",
-      body: "EpiGuard continue de surveiller en arriere-plan. Vous serez alerte en cas de crise.",
+      body: "ProxiVeille continue de surveiller en arriere-plan. Vous serez alerte en cas de crise.",
       data: { type: "background_status" },
       ...(Platform.OS === "android" ? { channelId: "monitoring" } : {}),
     },
@@ -204,7 +210,7 @@ export async function getExpoPushToken(): Promise<string | null> {
  */
 export async function sendSmsSentNotification(
   totalSent: number,
-  totalFailed: number
+  totalFailed: number,
 ): Promise<void> {
   if (Platform.OS === "web") return;
 
@@ -215,7 +221,8 @@ export async function sendSmsSentNotification(
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: totalFailed > 0 ? "SMS partiellement envoyes" : "SMS d'urgence envoyes",
+      title:
+        totalFailed > 0 ? "SMS partiellement envoyes" : "SMS d'urgence envoyes",
       body,
       data: { type: "sms_sent" },
       sound: "default",
@@ -254,7 +261,7 @@ export async function cancelAllNotifications(): Promise<void> {
  * Add a listener for notification responses (when user taps a notification)
  */
 export function addNotificationResponseListener(
-  callback: (response: Notifications.NotificationResponse) => void
+  callback: (response: Notifications.NotificationResponse) => void,
 ) {
   return Notifications.addNotificationResponseReceivedListener(callback);
 }
@@ -263,7 +270,7 @@ export function addNotificationResponseListener(
  * Add a listener for received notifications
  */
 export function addNotificationReceivedListener(
-  callback: (notification: Notifications.Notification) => void
+  callback: (notification: Notifications.Notification) => void,
 ) {
   return Notifications.addNotificationReceivedListener(callback);
 }

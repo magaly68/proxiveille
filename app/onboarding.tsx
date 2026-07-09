@@ -44,11 +44,17 @@ export default function OnboardingScreen() {
   const [name, setName] = useState(state.medicalProfile.name);
   const [age, setAge] = useState(state.medicalProfile.age);
   const [bloodType, setBloodType] = useState(state.medicalProfile.bloodType);
-  const [epilepsyType, setEpilepsyType] = useState(state.medicalProfile.epilepsyType);
-  const [medications, setMedications] = useState(state.medicalProfile.medications);
+  const [epilepsyType, setEpilepsyType] = useState(
+    state.medicalProfile.epilepsyType,
+  );
+  const [medications, setMedications] = useState(
+    state.medicalProfile.medications,
+  );
   const [allergies, setAllergies] = useState(state.medicalProfile.allergies);
   const [doctor, setDoctor] = useState(state.medicalProfile.doctor);
-  const [doctorPhone, setDoctorPhone] = useState(state.medicalProfile.doctorPhone);
+  const [doctorPhone, setDoctorPhone] = useState(
+    state.medicalProfile.doctorPhone,
+  );
 
   // Contact form state
   const [contactName, setContactName] = useState("");
@@ -97,7 +103,18 @@ export default function OnboardingScreen() {
       },
     });
     goNext();
-  }, [dispatch, name, age, bloodType, epilepsyType, medications, allergies, doctor, doctorPhone, goNext]);
+  }, [
+    dispatch,
+    name,
+    age,
+    bloodType,
+    epilepsyType,
+    medications,
+    allergies,
+    doctor,
+    doctorPhone,
+    goNext,
+  ]);
 
   const addContact = useCallback(() => {
     if (!contactName.trim() || !contactPhone.trim()) return;
@@ -135,10 +152,17 @@ export default function OnboardingScreen() {
     value: string,
     onChangeText: (t: string) => void,
     placeholder: string,
-    keyboardType: "default" | "numeric" | "phone-pad" = "default"
+    keyboardType: "default" | "numeric" | "phone-pad" = "default",
   ) => (
     <View style={{ marginBottom: 14 }}>
-      <Text style={{ fontSize: 13, fontWeight: "600", color: colors.foreground, marginBottom: 6 }}>
+      <Text
+        style={{
+          fontSize: 13,
+          fontWeight: "600",
+          color: colors.foreground,
+          marginBottom: 6,
+        }}
+      >
         {label}
       </Text>
       <TextInput
@@ -165,10 +189,17 @@ export default function OnboardingScreen() {
     label: string,
     options: string[],
     selected: string,
-    onSelect: (v: string) => void
+    onSelect: (v: string) => void,
   ) => (
     <View style={{ marginBottom: 14 }}>
-      <Text style={{ fontSize: 13, fontWeight: "600", color: colors.foreground, marginBottom: 8 }}>
+      <Text
+        style={{
+          fontSize: 13,
+          fontWeight: "600",
+          color: colors.foreground,
+          marginBottom: 8,
+        }}
+      >
         {label}
       </Text>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
@@ -186,7 +217,8 @@ export default function OnboardingScreen() {
                 borderRadius: 20,
                 borderWidth: 1,
                 borderColor: selected === opt ? colors.primary : colors.border,
-                backgroundColor: selected === opt ? colors.primary + "15" : colors.surface,
+                backgroundColor:
+                  selected === opt ? colors.primary + "15" : colors.surface,
                 opacity: pressed ? 0.8 : 1,
               },
             ]}
@@ -207,7 +239,14 @@ export default function OnboardingScreen() {
   );
 
   const renderStepIndicator = () => (
-    <View style={{ flexDirection: "row", justifyContent: "center", gap: 8, marginBottom: 24 }}>
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "center",
+        gap: 8,
+        marginBottom: 24,
+      }}
+    >
       {STEPS.map((step, index) => (
         <View
           key={step}
@@ -215,7 +254,8 @@ export default function OnboardingScreen() {
             width: index <= currentIndex ? 24 : 8,
             height: 8,
             borderRadius: 4,
-            backgroundColor: index <= currentIndex ? colors.primary : colors.border,
+            backgroundColor:
+              index <= currentIndex ? colors.primary : colors.border,
           }}
         />
       ))}
@@ -226,7 +266,7 @@ export default function OnboardingScreen() {
     onNext: () => void,
     nextLabel: string = "Continuer",
     showBack: boolean = true,
-    showSkip: boolean = false
+    showSkip: boolean = false,
   ) => (
     <View style={{ marginTop: 20, gap: 10 }}>
       <Pressable
@@ -242,7 +282,9 @@ export default function OnboardingScreen() {
           },
         ]}
       >
-        <Text style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "700" }}>{nextLabel}</Text>
+        <Text style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "700" }}>
+          {nextLabel}
+        </Text>
       </Pressable>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         {showBack ? (
@@ -256,7 +298,11 @@ export default function OnboardingScreen() {
               },
             ]}
           >
-            <Text style={{ color: colors.muted, fontSize: 14, fontWeight: "500" }}>Retour</Text>
+            <Text
+              style={{ color: colors.muted, fontSize: 14, fontWeight: "500" }}
+            >
+              Retour
+            </Text>
           </Pressable>
         ) : (
           <View />
@@ -272,7 +318,11 @@ export default function OnboardingScreen() {
               },
             ]}
           >
-            <Text style={{ color: colors.muted, fontSize: 14, fontWeight: "500" }}>Passer</Text>
+            <Text
+              style={{ color: colors.muted, fontSize: 14, fontWeight: "500" }}
+            >
+              Passer
+            </Text>
           </Pressable>
         ) : (
           <View />
@@ -282,7 +332,14 @@ export default function OnboardingScreen() {
   );
 
   const renderWelcome = () => (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: 40 }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 40,
+      }}
+    >
       <View
         style={{
           width: 100,
@@ -305,7 +362,7 @@ export default function OnboardingScreen() {
           marginBottom: 12,
         }}
       >
-        Bienvenue sur EpiGuard
+        Bienvenue sur ProxiVeille
       </Text>
       <Text
         style={{
@@ -317,8 +374,8 @@ export default function OnboardingScreen() {
           marginBottom: 8,
         }}
       >
-        Votre compagnon de surveillance des crises d'epilepsie. Configurons ensemble votre
-        application en quelques etapes.
+        Votre compagnon de surveillance des crises d'epilepsie. Configurons
+        ensemble votre application en quelques etapes.
       </Text>
       <Text
         style={{
@@ -330,8 +387,9 @@ export default function OnboardingScreen() {
           marginTop: 16,
         }}
       >
-        Nous allons vous guider pour configurer votre profil medical et vos contacts d'urgence.
-        Vous pourrez modifier ces informations a tout moment.
+        Nous allons vous guider pour configurer votre profil medical et vos
+        contacts d'urgence. Vous pourrez modifier ces informations a tout
+        moment.
       </Text>
       {renderNavButtons(goNext, "Commencer", false, true)}
     </View>
@@ -357,18 +415,44 @@ export default function OnboardingScreen() {
           lineHeight: 19,
         }}
       >
-        Ces informations seront utiles en cas d'urgence et pour le suivi medical. Tous les champs
-        sont facultatifs.
+        Ces informations seront utiles en cas d'urgence et pour le suivi
+        medical. Tous les champs sont facultatifs.
       </Text>
 
       {renderInput("Nom complet", name, setName, "Votre nom")}
       {renderInput("Age", age, setAge, "Votre age", "numeric")}
-      {renderChipSelector("Groupe sanguin", BLOOD_TYPES, bloodType, setBloodType)}
-      {renderChipSelector("Type d'epilepsie", EPILEPSY_TYPES, epilepsyType, setEpilepsyType)}
-      {renderInput("Medicaments", medications, setMedications, "Ex: Valproate 500mg, Levetiracetam...")}
-      {renderInput("Allergies", allergies, setAllergies, "Ex: Penicilline, Aspirine...")}
+      {renderChipSelector(
+        "Groupe sanguin",
+        BLOOD_TYPES,
+        bloodType,
+        setBloodType,
+      )}
+      {renderChipSelector(
+        "Type d'epilepsie",
+        EPILEPSY_TYPES,
+        epilepsyType,
+        setEpilepsyType,
+      )}
+      {renderInput(
+        "Medicaments",
+        medications,
+        setMedications,
+        "Ex: Valproate 500mg, Levetiracetam...",
+      )}
+      {renderInput(
+        "Allergies",
+        allergies,
+        setAllergies,
+        "Ex: Penicilline, Aspirine...",
+      )}
       {renderInput("Medecin traitant", doctor, setDoctor, "Nom du neurologue")}
-      {renderInput("Telephone du medecin", doctorPhone, setDoctorPhone, "+33 ...", "phone-pad")}
+      {renderInput(
+        "Telephone du medecin",
+        doctorPhone,
+        setDoctorPhone,
+        "+33 ...",
+        "phone-pad",
+      )}
 
       {renderNavButtons(saveProfile, "Enregistrer et continuer", true, false)}
     </View>
@@ -394,14 +478,21 @@ export default function OnboardingScreen() {
           lineHeight: 19,
         }}
       >
-        Ajoutez les personnes a prevenir en cas de crise. Elles recevront un SMS et/ou un appel
-        automatique.
+        Ajoutez les personnes a prevenir en cas de crise. Elles recevront un SMS
+        et/ou un appel automatique.
       </Text>
 
       {/* Existing contacts */}
       {state.emergencyContacts.length > 0 && (
         <View style={{ marginBottom: 16 }}>
-          <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground, marginBottom: 8 }}>
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: "600",
+              color: colors.foreground,
+              marginBottom: 8,
+            }}
+          >
             Contacts ajoutes ({state.emergencyContacts.length})
           </Text>
           {state.emergencyContacts.map((c) => (
@@ -420,7 +511,13 @@ export default function OnboardingScreen() {
               }}
             >
               <View>
-                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "600",
+                    color: colors.foreground,
+                  }}
+                >
                   {c.name}
                 </Text>
                 <Text style={{ fontSize: 12, color: colors.muted }}>
@@ -432,7 +529,9 @@ export default function OnboardingScreen() {
                   hapticFeedback();
                   dispatch({ type: "REMOVE_CONTACT", payload: c.id });
                 }}
-                style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1, padding: 6 }]}
+                style={({ pressed }) => [
+                  { opacity: pressed ? 0.6 : 1, padding: 6 },
+                ]}
               >
                 <Text style={{ fontSize: 18, color: colors.error }}>×</Text>
               </Pressable>
@@ -452,17 +551,38 @@ export default function OnboardingScreen() {
           marginBottom: 8,
         }}
       >
-        <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground, marginBottom: 12 }}>
+        <Text
+          style={{
+            fontSize: 14,
+            fontWeight: "600",
+            color: colors.foreground,
+            marginBottom: 12,
+          }}
+        >
           Ajouter un contact
         </Text>
         {renderInput("Nom", contactName, setContactName, "Nom du contact")}
-        {renderInput("Telephone", contactPhone, setContactPhone, "+33 6 ...", "phone-pad")}
-        {renderInput("Relation", contactRelation, setContactRelation, "Ex: Conjoint, Parent, Ami...")}
+        {renderInput(
+          "Telephone",
+          contactPhone,
+          setContactPhone,
+          "+33 6 ...",
+          "phone-pad",
+        )}
+        {renderInput(
+          "Relation",
+          contactRelation,
+          setContactRelation,
+          "Ex: Conjoint, Parent, Ami...",
+        )}
         <Pressable
           onPress={addContact}
           style={({ pressed }) => [
             {
-              backgroundColor: contactName.trim() && contactPhone.trim() ? colors.primary : colors.border,
+              backgroundColor:
+                contactName.trim() && contactPhone.trim()
+                  ? colors.primary
+                  : colors.border,
               paddingVertical: 12,
               borderRadius: 10,
               alignItems: "center",
@@ -504,7 +624,14 @@ export default function OnboardingScreen() {
       </Text>
 
       {/* Sensitivity */}
-      <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground, marginBottom: 10 }}>
+      <Text
+        style={{
+          fontSize: 14,
+          fontWeight: "600",
+          color: colors.foreground,
+          marginBottom: 10,
+        }}
+      >
         Sensibilite de detection
       </Text>
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 20 }}>
@@ -521,7 +648,10 @@ export default function OnboardingScreen() {
               key={level}
               onPress={() => {
                 hapticFeedback();
-                dispatch({ type: "UPDATE_SETTINGS", payload: { sensitivity: level } });
+                dispatch({
+                  type: "UPDATE_SETTINGS",
+                  payload: { sensitivity: level },
+                });
               }}
               style={({ pressed }) => [
                 {
@@ -530,7 +660,9 @@ export default function OnboardingScreen() {
                   borderRadius: 12,
                   borderWidth: 1.5,
                   borderColor: isSelected ? colors.primary : colors.border,
-                  backgroundColor: isSelected ? colors.primary + "10" : colors.surface,
+                  backgroundColor: isSelected
+                    ? colors.primary + "10"
+                    : colors.surface,
                   alignItems: "center",
                   opacity: pressed ? 0.85 : 1,
                 },
@@ -546,7 +678,13 @@ export default function OnboardingScreen() {
               >
                 {labels[level]}
               </Text>
-              <Text style={{ fontSize: 10, color: colors.muted, textAlign: "center" }}>
+              <Text
+                style={{
+                  fontSize: 10,
+                  color: colors.muted,
+                  textAlign: "center",
+                }}
+              >
                 {descs[level]}
               </Text>
             </Pressable>
@@ -565,14 +703,27 @@ export default function OnboardingScreen() {
           marginBottom: 16,
         }}
       >
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <View style={{ flex: 1, paddingRight: 12 }}>
-            <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground, marginBottom: 4 }}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "600",
+                color: colors.foreground,
+                marginBottom: 4,
+              }}
+            >
               Appel automatique
             </Text>
             <Text style={{ fontSize: 12, color: colors.muted, lineHeight: 17 }}>
-              Appeler automatiquement le premier contact d'urgence apres le compte a rebours de 30
-              secondes.
+              Appeler automatiquement le premier contact d'urgence apres le
+              compte a rebours de 30 secondes.
             </Text>
           </View>
           <Pressable
@@ -580,7 +731,9 @@ export default function OnboardingScreen() {
               hapticFeedback();
               dispatch({
                 type: "UPDATE_SETTINGS",
-                payload: { autoCallEnabled: !state.detectionSettings.autoCallEnabled },
+                payload: {
+                  autoCallEnabled: !state.detectionSettings.autoCallEnabled,
+                },
               });
             }}
             style={({ pressed }) => [
@@ -603,7 +756,9 @@ export default function OnboardingScreen() {
                 height: 26,
                 borderRadius: 13,
                 backgroundColor: "#FFFFFF",
-                alignSelf: state.detectionSettings.autoCallEnabled ? "flex-end" : "flex-start",
+                alignSelf: state.detectionSettings.autoCallEnabled
+                  ? "flex-end"
+                  : "flex-start",
               }}
             />
           </Pressable>
@@ -636,17 +791,34 @@ export default function OnboardingScreen() {
             marginBottom: 10,
           }}
         >
-          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <View style={{ flex: 1, paddingRight: 12 }}>
-              <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: "600",
+                  color: colors.foreground,
+                }}
+              >
                 {item.label}
               </Text>
-              <Text style={{ fontSize: 12, color: colors.muted }}>{item.desc}</Text>
+              <Text style={{ fontSize: 12, color: colors.muted }}>
+                {item.desc}
+              </Text>
             </View>
             <Pressable
               onPress={() => {
                 hapticFeedback();
-                dispatch({ type: "UPDATE_SETTINGS", payload: { [item.key]: !item.value } });
+                dispatch({
+                  type: "UPDATE_SETTINGS",
+                  payload: { [item.key]: !item.value },
+                });
               }}
               style={({ pressed }) => [
                 {
@@ -679,7 +851,14 @@ export default function OnboardingScreen() {
   );
 
   const renderDone = () => (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: 40 }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 40,
+      }}
+    >
       <View
         style={{
           width: 100,
@@ -714,8 +893,8 @@ export default function OnboardingScreen() {
           marginBottom: 8,
         }}
       >
-        Votre profil medical et vos contacts d'urgence sont configures. Vous pouvez maintenant
-        activer la surveillance.
+        Votre profil medical et vos contacts d'urgence sont configures. Vous
+        pouvez maintenant activer la surveillance.
       </Text>
 
       {/* Summary */}
@@ -731,37 +910,94 @@ export default function OnboardingScreen() {
           marginBottom: 8,
         }}
       >
-        <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground, marginBottom: 10 }}>
+        <Text
+          style={{
+            fontSize: 14,
+            fontWeight: "600",
+            color: colors.foreground,
+            marginBottom: 10,
+          }}
+        >
           Resume de la configuration
         </Text>
         <View style={{ gap: 6 }}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
             <Text style={{ fontSize: 13, color: colors.muted }}>Nom</Text>
-            <Text style={{ fontSize: 13, fontWeight: "500", color: colors.foreground }}>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "500",
+                color: colors.foreground,
+              }}
+            >
               {state.medicalProfile.name || "Non renseigne"}
             </Text>
           </View>
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ fontSize: 13, color: colors.muted }}>Type d'epilepsie</Text>
-            <Text style={{ fontSize: 13, fontWeight: "500", color: colors.foreground }}>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={{ fontSize: 13, color: colors.muted }}>
+              Type d'epilepsie
+            </Text>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "500",
+                color: colors.foreground,
+              }}
+            >
               {state.medicalProfile.epilepsyType || "Non renseigne"}
             </Text>
           </View>
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ fontSize: 13, color: colors.muted }}>Contacts d'urgence</Text>
-            <Text style={{ fontSize: 13, fontWeight: "500", color: colors.primary }}>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={{ fontSize: 13, color: colors.muted }}>
+              Contacts d'urgence
+            </Text>
+            <Text
+              style={{ fontSize: 13, fontWeight: "500", color: colors.primary }}
+            >
               {state.emergencyContacts.length} configure(s)
             </Text>
           </View>
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ fontSize: 13, color: colors.muted }}>Sensibilite</Text>
-            <Text style={{ fontSize: 13, fontWeight: "500", color: colors.foreground }}>
-              {{ low: "Faible", medium: "Moyenne", high: "Elevee" }[state.detectionSettings.sensitivity]}
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={{ fontSize: 13, color: colors.muted }}>
+              Sensibilite
+            </Text>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "500",
+                color: colors.foreground,
+              }}
+            >
+              {
+                { low: "Faible", medium: "Moyenne", high: "Elevee" }[
+                  state.detectionSettings.sensitivity
+                ]
+              }
             </Text>
           </View>
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ fontSize: 13, color: colors.muted }}>Appel auto</Text>
-            <Text style={{ fontSize: 13, fontWeight: "500", color: state.detectionSettings.autoCallEnabled ? colors.success : colors.muted }}>
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={{ fontSize: 13, color: colors.muted }}>
+              Appel auto
+            </Text>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "500",
+                color: state.detectionSettings.autoCallEnabled
+                  ? colors.success
+                  : colors.muted,
+              }}
+            >
               {state.detectionSettings.autoCallEnabled ? "Active" : "Desactive"}
             </Text>
           </View>
@@ -778,7 +1014,8 @@ export default function OnboardingScreen() {
           marginTop: 12,
         }}
       >
-        Vous pouvez modifier ces parametres a tout moment depuis l'onglet Profil.
+        Vous pouvez modifier ces parametres a tout moment depuis l'onglet
+        Profil.
       </Text>
 
       <View style={{ width: "100%", marginTop: 24 }}>
@@ -819,7 +1056,10 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <ScreenContainer edges={["top", "bottom", "left", "right"]} className="px-6">
+    <ScreenContainer
+      edges={["top", "bottom", "left", "right"]}
+      className="px-6"
+    >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}

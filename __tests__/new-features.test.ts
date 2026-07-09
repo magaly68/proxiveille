@@ -13,14 +13,38 @@ describe("Medical report export", () => {
   };
 
   const mockEvents = [
-    { id: "1", timestamp: Date.now() - 86400000, duration: 45, intensity: "medium" as const, notes: "Fatigue", wasManual: false, wasCancelled: false },
-    { id: "2", timestamp: Date.now() - 172800000, duration: 30, intensity: "low" as const, notes: "", wasManual: true, wasCancelled: false },
-    { id: "3", timestamp: Date.now() - 259200000, duration: 60, intensity: "high" as const, notes: "Stress", wasManual: false, wasCancelled: false },
+    {
+      id: "1",
+      timestamp: Date.now() - 86400000,
+      duration: 45,
+      intensity: "medium" as const,
+      notes: "Fatigue",
+      wasManual: false,
+      wasCancelled: false,
+    },
+    {
+      id: "2",
+      timestamp: Date.now() - 172800000,
+      duration: 30,
+      intensity: "low" as const,
+      notes: "",
+      wasManual: true,
+      wasCancelled: false,
+    },
+    {
+      id: "3",
+      timestamp: Date.now() - 259200000,
+      duration: 60,
+      intensity: "high" as const,
+      notes: "Stress",
+      wasManual: false,
+      wasCancelled: false,
+    },
   ];
 
   it("should generate a report with patient info", () => {
     const lines: string[] = [
-      "=== RAPPORT MEDICAL EPIGUARD ===",
+      "=== RAPPORT MEDICAL PROXIVEILLE ===",
       `Nom : ${mockProfile.name}`,
       `Age : ${mockProfile.age}`,
       `Groupe sanguin : ${mockProfile.bloodType}`,
@@ -35,7 +59,9 @@ describe("Medical report export", () => {
 
   it("should include correct statistics in report", () => {
     const count = mockEvents.length;
-    const avgDuration = Math.round(mockEvents.reduce((a, e) => a + e.duration, 0) / count);
+    const avgDuration = Math.round(
+      mockEvents.reduce((a, e) => a + e.duration, 0) / count,
+    );
     const lowCount = mockEvents.filter((e) => e.intensity === "low").length;
     const medCount = mockEvents.filter((e) => e.intensity === "medium").length;
     const highCount = mockEvents.filter((e) => e.intensity === "high").length;
@@ -108,7 +134,9 @@ describe("Emergency auto-call logic", () => {
 
   it("should not call when autoCallEnabled is false", () => {
     const settings = { autoCallEnabled: false };
-    const contacts = [{ id: "1", name: "Marie", phone: "+33612345678", relation: "Conjointe" }];
+    const contacts = [
+      { id: "1", name: "Marie", phone: "+33612345678", relation: "Conjointe" },
+    ];
 
     const shouldCall = settings.autoCallEnabled && contacts.length > 0;
     expect(shouldCall).toBe(false);

@@ -10,7 +10,10 @@ import { Pressable } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useSmartWatch } from "@/hooks/use-smartwatch";
-import { analyzeHeartRateForSeizure, isBLEAvailable } from "@/lib/smartwatch-service";
+import {
+  analyzeHeartRateForSeizure,
+  isBLEAvailable,
+} from "@/lib/smartwatch-service";
 import * as Haptics from "expo-haptics";
 
 export default function WatchScreen() {
@@ -52,7 +55,7 @@ export default function WatchScreen() {
       }
       connectToDevice(deviceId, deviceName);
     },
-    [connectToDevice]
+    [connectToDevice],
   );
 
   const handleDisconnect = useCallback(() => {
@@ -74,12 +77,15 @@ export default function WatchScreen() {
     return (
       <ScreenContainer className="px-6 pt-4">
         <View className="flex-1 items-center justify-center gap-4">
-          <Text className="text-2xl font-bold text-foreground">Montre connectee</Text>
+          <Text className="text-2xl font-bold text-foreground">
+            Montre connectee
+          </Text>
           <View className="bg-surface rounded-2xl p-6 border border-border items-center gap-3">
             <Text className="text-6xl">⌚</Text>
             <Text className="text-base text-muted text-center">
               La connexion Bluetooth n'est pas disponible sur cette plateforme.
-              Utilisez l'application sur votre telephone pour connecter une montre.
+              Utilisez l'application sur votre telephone pour connecter une
+              montre.
             </Text>
           </View>
           <View className="bg-surface rounded-2xl p-5 border border-border w-full gap-3">
@@ -87,7 +93,7 @@ export default function WatchScreen() {
               Appareils compatibles
             </Text>
             <Text className="text-sm text-muted leading-relaxed">
-              EpiGuard est compatible avec les montres et bracelets connectes
+              ProxiVeille est compatible avec les montres et bracelets connectes
               qui supportent le protocole Bluetooth Low Energy (BLE) avec le
               service standard de rythme cardiaque :
             </Text>
@@ -212,8 +218,8 @@ export default function WatchScreen() {
                             state.heartRate > 100
                               ? colors.error
                               : state.heartRate > 0
-                              ? colors.primary
-                              : colors.muted,
+                                ? colors.primary
+                                : colors.muted,
                         }}
                       >
                         {state.heartRate > 0 ? state.heartRate : "--"}
@@ -255,7 +261,9 @@ export default function WatchScreen() {
                       Analyse cardiaque
                     </Text>
                     <View className="flex-row justify-between">
-                      <Text className="text-xs text-muted">BPM moyen (baseline)</Text>
+                      <Text className="text-xs text-muted">
+                        BPM moyen (baseline)
+                      </Text>
                       <Text className="text-xs font-medium text-foreground">
                         {hrAnalysis.averageBpm} bpm
                       </Text>
@@ -274,7 +282,9 @@ export default function WatchScreen() {
                       </Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="text-xs text-muted">Augmentation rapide</Text>
+                      <Text className="text-xs text-muted">
+                        Augmentation rapide
+                      </Text>
                       <Text
                         className="text-xs font-medium"
                         style={{
@@ -300,15 +310,17 @@ export default function WatchScreen() {
                       </Text>
                     </View>
                     <View className="flex-row justify-between items-center mt-1">
-                      <Text className="text-xs text-muted">Score de confiance</Text>
+                      <Text className="text-xs text-muted">
+                        Score de confiance
+                      </Text>
                       <View
                         style={{
                           backgroundColor:
                             hrAnalysis.confidenceScore > 0.5
                               ? colors.error + "20"
                               : hrAnalysis.confidenceScore > 0.2
-                              ? colors.warning + "20"
-                              : colors.success + "20",
+                                ? colors.warning + "20"
+                                : colors.success + "20",
                           paddingHorizontal: 10,
                           paddingVertical: 3,
                           borderRadius: 6,
@@ -322,8 +334,8 @@ export default function WatchScreen() {
                               hrAnalysis.confidenceScore > 0.5
                                 ? colors.error
                                 : hrAnalysis.confidenceScore > 0.2
-                                ? colors.warning
-                                : colors.success,
+                                  ? colors.warning
+                                  : colors.success,
                           }}
                         >
                           {Math.round(hrAnalysis.confidenceScore * 100)}%
@@ -349,7 +361,13 @@ export default function WatchScreen() {
                       },
                     ]}
                   >
-                    <Text style={{ color: colors.warning, fontWeight: "600", fontSize: 14 }}>
+                    <Text
+                      style={{
+                        color: colors.warning,
+                        fontWeight: "600",
+                        fontSize: 14,
+                      }}
+                    >
                       Deconnecter
                     </Text>
                   </Pressable>
@@ -367,7 +385,13 @@ export default function WatchScreen() {
                       },
                     ]}
                   >
-                    <Text style={{ color: colors.error, fontWeight: "600", fontSize: 14 }}>
+                    <Text
+                      style={{
+                        color: colors.error,
+                        fontWeight: "600",
+                        fontSize: 14,
+                      }}
+                    >
                       Oublier
                     </Text>
                   </Pressable>
@@ -409,12 +433,11 @@ export default function WatchScreen() {
             )}
 
             {/* Discovered devices header */}
-            {!state.isConnected &&
-              state.discoveredDevices.length > 0 && (
-                <Text className="text-sm font-semibold text-foreground mt-2">
-                  Appareils detectes ({state.discoveredDevices.length})
-                </Text>
-              )}
+            {!state.isConnected && state.discoveredDevices.length > 0 && (
+              <Text className="text-sm font-semibold text-foreground mt-2">
+                Appareils detectes ({state.discoveredDevices.length})
+              </Text>
+            )}
 
             {/* Scanning indicator */}
             {state.isScanning && state.discoveredDevices.length === 0 && (
@@ -480,7 +503,9 @@ export default function WatchScreen() {
                 borderRadius: 10,
               }}
             >
-              <Text style={{ color: "#FFFFFF", fontWeight: "600", fontSize: 13 }}>
+              <Text
+                style={{ color: "#FFFFFF", fontWeight: "600", fontSize: 13 }}
+              >
                 Connecter
               </Text>
             </View>
@@ -494,7 +519,7 @@ export default function WatchScreen() {
                 Comment ca fonctionne
               </Text>
               <Text className="text-sm text-muted leading-relaxed">
-                En connectant une montre ou un bracelet connecte, EpiGuard
+                En connectant une montre ou un bracelet connecte, ProxiVeille
                 utilise les donnees de rythme cardiaque pour ameliorer la
                 precision de la detection des crises. L'algorithme combine :
               </Text>

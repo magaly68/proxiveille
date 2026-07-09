@@ -1,18 +1,3 @@
-import {
-  ACCESSIBLE_BUTTON_STYLE,
-  APP_NAME,
-  NON_MEDICAL_NOTICE,
-  SAMSUNG_TEST_LABEL,
-} from "@/constants/proxiveille";
-
-
-export const APP_NAME = "ProxiVeille";
-
-export const SAMSUNG_TEST_LABEL = "Version test Samsung Galaxy";
-
-export const NON_MEDICAL_NOTICE =
-  "ProxiVeille n'est pas un dispositif médical et ne remplace pas une prise en charge professionnelle. Vous gardez toujours le contrôle avant toute action sensible.";
-
 export const ACCESSIBLE_BUTTON_STYLE = {
   minHeight: 56,
   paddingVertical: 16,
@@ -26,13 +11,6 @@ export const SAMSUNG_TEST_LABEL = "Version test Samsung Galaxy";
 
 export const NON_MEDICAL_NOTICE =
   "ProxiVeille n'est pas un dispositif médical et ne remplace pas une prise en charge professionnelle. Vous gardez toujours le contrôle avant toute action sensible.";
-
-export const ACCESSIBLE_BUTTON_STYLE = {
-  minHeight: 56,
-  paddingVertical: 16,
-  paddingHorizontal: 18,
-  borderRadius: 16,
-};
 
 export const STATUS_CONFIG = {
   inactive: {

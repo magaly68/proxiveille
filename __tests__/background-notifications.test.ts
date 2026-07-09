@@ -6,7 +6,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 describe("Notification Service - Logic", () => {
   it("should define notification channels for Android", () => {
     const channels = [
-      { id: "seizure-alerts", name: "Alertes de crises", importance: "MAX", bypassDnd: true },
+      {
+        id: "seizure-alerts",
+        name: "Alertes de crises",
+        importance: "MAX",
+        bypassDnd: true,
+      },
       { id: "monitoring", name: "Surveillance active", importance: "LOW" },
       { id: "general", name: "General", importance: "DEFAULT" },
     ];
@@ -21,7 +26,7 @@ describe("Notification Service - Logic", () => {
     const notification = {
       content: {
         title: "Crise detectee !",
-        body: "EpiGuard a detecte une activite anormale. Les contacts d'urgence vont etre alertes.",
+        body: "ProxiVeille a detecte une activite anormale. Les contacts d'urgence vont etre alertes.",
         data: { type: "seizure_alert" },
         sound: "default",
         priority: "MAX",
@@ -52,7 +57,7 @@ describe("Notification Service - Logic", () => {
   it("should format monitoring active notification as persistent", () => {
     const notification = {
       content: {
-        title: "EpiGuard - Surveillance active",
+        title: "ProxiVeille - Surveillance active",
         body: "La surveillance des crises est en cours. Votre securite est assuree.",
         data: { type: "monitoring_active" },
         sticky: true,
@@ -95,7 +100,7 @@ describe("Notification Service - Logic", () => {
     const notification = {
       content: {
         title: "Surveillance en arriere-plan",
-        body: "EpiGuard continue de surveiller en arriere-plan. Vous serez alerte en cas de crise.",
+        body: "ProxiVeille continue de surveiller en arriere-plan. Vous serez alerte en cas de crise.",
         data: { type: "background_status" },
         channelId: "monitoring",
       },
@@ -210,10 +215,10 @@ describe("Alert Flow Integration", () => {
     steps.push("send_contacts_alerted_notification");
 
     expect(steps.indexOf("send_seizure_notification")).toBeLessThan(
-      steps.indexOf("auto_call_contact")
+      steps.indexOf("auto_call_contact"),
     );
     expect(steps.indexOf("countdown_finished")).toBeLessThan(
-      steps.indexOf("send_seizure_notification")
+      steps.indexOf("send_seizure_notification"),
     );
     expect(steps).toHaveLength(8);
   });

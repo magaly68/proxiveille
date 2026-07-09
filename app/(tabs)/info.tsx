@@ -1,5 +1,12 @@
 import { useState, useCallback } from "react";
-import { Text, View, ScrollView, Pressable, Linking, Platform } from "react-native";
+import {
+  Text,
+  View,
+  ScrollView,
+  Pressable,
+  Linking,
+  Platform,
+} from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import * as Haptics from "expo-haptics";
@@ -28,7 +35,7 @@ const INFO_SECTIONS: Record<InfoSection, SectionData> = {
       },
       {
         title: "Crises d'absence (petit mal)",
-        text: "Breves pertes de conscience (5 a 30 secondes) avec un regard fixe. La personne peut sembler \"deconnectee\" puis reprendre ses activites normalement. Plus frequentes chez les enfants.",
+        text: 'Breves pertes de conscience (5 a 30 secondes) avec un regard fixe. La personne peut sembler "deconnectee" puis reprendre ses activites normalement. Plus frequentes chez les enfants.',
       },
       {
         title: "Crises focales (partielles)",
@@ -159,7 +166,7 @@ const INFO_SECTIONS: Record<InfoSection, SectionData> = {
         text: "Des centres specialises existent dans les CHU de France. Demandez a votre medecin une orientation vers un centre de reference pour un suivi specialise.",
       },
       {
-        title: "Application EpiGuard",
+        title: "Application ProxiVeille",
         text: "Cette application est un outil d'aide a la detection, pas un dispositif medical certifie. Elle ne remplace en aucun cas l'avis et le suivi de votre neurologue.",
       },
     ],
@@ -168,19 +175,18 @@ const INFO_SECTIONS: Record<InfoSection, SectionData> = {
 
 export default function InfoScreen() {
   const colors = useColors();
-  const [expandedSection, setExpandedSection] = useState<InfoSection | null>(null);
+  const [expandedSection, setExpandedSection] = useState<InfoSection | null>(
+    null,
+  );
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
-  const toggleSection = useCallback(
-    (section: InfoSection) => {
-      if (Platform.OS !== "web") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      }
-      setExpandedSection((prev) => (prev === section ? null : section));
-      setExpandedItem(null);
-    },
-    []
-  );
+  const toggleSection = useCallback((section: InfoSection) => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    setExpandedSection((prev) => (prev === section ? null : section));
+    setExpandedItem(null);
+  }, []);
 
   const toggleItem = useCallback((itemKey: string) => {
     setExpandedItem((prev) => (prev === itemKey ? null : itemKey));
@@ -195,10 +201,15 @@ export default function InfoScreen() {
 
   return (
     <ScreenContainer className="px-6">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 30 }}
+      >
         {/* Header */}
         <View className="pt-4 mb-2">
-          <Text className="text-2xl font-bold text-foreground">Informations</Text>
+          <Text className="text-2xl font-bold text-foreground">
+            Informations
+          </Text>
           <Text className="text-sm text-muted mt-1">
             Comprendre l'epilepsie et savoir reagir
           </Text>
@@ -288,7 +299,8 @@ export default function InfoScreen() {
                               : "transparent",
                             padding: 12,
                             borderRadius: 10,
-                            marginBottom: index < section.content.length - 1 ? 4 : 0,
+                            marginBottom:
+                              index < section.content.length - 1 ? 4 : 0,
                             opacity: pressed ? 0.85 : 1,
                           },
                         ]}
@@ -341,13 +353,20 @@ export default function InfoScreen() {
             marginTop: 8,
           }}
         >
-          <Text style={{ fontSize: 13, fontWeight: "700", color: colors.warning, marginBottom: 4 }}>
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: "700",
+              color: colors.warning,
+              marginBottom: 4,
+            }}
+          >
             Avertissement
           </Text>
           <Text style={{ fontSize: 12, color: colors.muted, lineHeight: 18 }}>
-            Les informations presentees ici sont a titre educatif et ne remplacent pas un avis
-            medical professionnel. Consultez toujours votre neurologue pour des conseils
-            personnalises.
+            Les informations presentees ici sont a titre educatif et ne
+            remplacent pas un avis medical professionnel. Consultez toujours
+            votre neurologue pour des conseils personnalises.
           </Text>
         </View>
       </ScrollView>

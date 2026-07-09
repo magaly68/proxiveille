@@ -23,33 +23,43 @@ export default function ProfileScreen() {
   const profile = state.medicalProfile;
   const settings = state.detectionSettings;
 
-  const toggleSection = useCallback(
-    (section: Section) => {
-      if (Platform.OS !== "web") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      }
-      setExpandedSection((prev) => (prev === section ? null : section));
-    },
-    []
-  );
+  const toggleSection = useCallback((section: Section) => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    setExpandedSection((prev) => (prev === section ? null : section));
+  }, []);
 
   const updateProfile = useCallback(
     (field: string, value: string) => {
       dispatch({ type: "UPDATE_PROFILE", payload: { [field]: value } });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const updateSettings = useCallback(
     (field: string, value: any) => {
       dispatch({ type: "UPDATE_SETTINGS", payload: { [field]: value } });
     },
-    [dispatch]
+    [dispatch],
   );
 
-  const renderField = (label: string, field: string, value: string, placeholder: string, keyboardType?: any) => (
+  const renderField = (
+    label: string,
+    field: string,
+    value: string,
+    placeholder: string,
+    keyboardType?: any,
+  ) => (
     <View className="mb-3">
-      <Text style={{ fontSize: 13, fontWeight: "600", color: colors.foreground, marginBottom: 4 }}>
+      <Text
+        style={{
+          fontSize: 13,
+          fontWeight: "600",
+          color: colors.foreground,
+          marginBottom: 4,
+        }}
+      >
         {label}
       </Text>
       <TextInput
@@ -71,7 +81,11 @@ export default function ProfileScreen() {
     </View>
   );
 
-  const renderSectionHeader = (section: Section, title: string, subtitle: string) => (
+  const renderSectionHeader = (
+    section: Section,
+    title: string,
+    subtitle: string,
+  ) => (
     <Pressable
       onPress={() => toggleSection(section)}
       style={({ pressed }) => [
@@ -80,7 +94,8 @@ export default function ProfileScreen() {
           padding: 16,
           borderRadius: 14,
           borderWidth: 1,
-          borderColor: expandedSection === section ? colors.primary : colors.border,
+          borderColor:
+            expandedSection === section ? colors.primary : colors.border,
           marginBottom: expandedSection === section ? 0 : 12,
           opacity: pressed ? 0.85 : 1,
         },
@@ -88,7 +103,9 @@ export default function ProfileScreen() {
     >
       <View className="flex-row justify-between items-center">
         <View className="flex-1">
-          <Text className="text-base font-semibold text-foreground">{title}</Text>
+          <Text className="text-base font-semibold text-foreground">
+            {title}
+          </Text>
           <Text className="text-xs text-muted mt-1">{subtitle}</Text>
         </View>
         <Text style={{ fontSize: 18, color: colors.muted }}>
@@ -100,17 +117,26 @@ export default function ProfileScreen() {
 
   return (
     <ScreenContainer className="px-6">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 30 }}
+      >
         {/* Header */}
         <View className="pt-4 mb-6">
-          <Text className="text-2xl font-bold text-foreground">Profil medical</Text>
+          <Text className="text-2xl font-bold text-foreground">
+            Profil medical
+          </Text>
           <Text className="text-sm text-muted mt-1">
             Informations et parametres
           </Text>
         </View>
 
         {/* Personal Info Section */}
-        {renderSectionHeader("personal", "Informations personnelles", "Nom, age, groupe sanguin")}
+        {renderSectionHeader(
+          "personal",
+          "Informations personnelles",
+          "Nom, age, groupe sanguin",
+        )}
         {expandedSection === "personal" && (
           <View
             style={{
@@ -126,12 +152,21 @@ export default function ProfileScreen() {
           >
             {renderField("Nom complet", "name", profile.name, "Votre nom")}
             {renderField("Age", "age", profile.age, "Votre age", "numeric")}
-            {renderField("Groupe sanguin", "bloodType", profile.bloodType, "Ex: A+, O-, AB+...")}
+            {renderField(
+              "Groupe sanguin",
+              "bloodType",
+              profile.bloodType,
+              "Ex: A+, O-, AB+...",
+            )}
           </View>
         )}
 
         {/* Medical Info Section */}
-        {renderSectionHeader("medical", "Informations medicales", "Epilepsie, traitements, allergies")}
+        {renderSectionHeader(
+          "medical",
+          "Informations medicales",
+          "Epilepsie, traitements, allergies",
+        )}
         {expandedSection === "medical" && (
           <View
             style={{
@@ -145,16 +180,46 @@ export default function ProfileScreen() {
               marginBottom: 12,
             }}
           >
-            {renderField("Type d'epilepsie", "epilepsyType", profile.epilepsyType, "Ex: Generalisee, Focale...")}
-            {renderField("Medicaments", "medications", profile.medications, "Vos traitements actuels")}
-            {renderField("Allergies", "allergies", profile.allergies, "Allergies connues")}
-            {renderField("Medecin traitant", "doctor", profile.doctor, "Nom du medecin")}
-            {renderField("Tel. medecin", "doctorPhone", profile.doctorPhone, "Telephone du medecin", "phone-pad")}
+            {renderField(
+              "Type d'epilepsie",
+              "epilepsyType",
+              profile.epilepsyType,
+              "Ex: Generalisee, Focale...",
+            )}
+            {renderField(
+              "Medicaments",
+              "medications",
+              profile.medications,
+              "Vos traitements actuels",
+            )}
+            {renderField(
+              "Allergies",
+              "allergies",
+              profile.allergies,
+              "Allergies connues",
+            )}
+            {renderField(
+              "Medecin traitant",
+              "doctor",
+              profile.doctor,
+              "Nom du medecin",
+            )}
+            {renderField(
+              "Tel. medecin",
+              "doctorPhone",
+              profile.doctorPhone,
+              "Telephone du medecin",
+              "phone-pad",
+            )}
           </View>
         )}
 
         {/* Detection Settings Section */}
-        {renderSectionHeader("detection", "Parametres de detection", "Sensibilite et seuils")}
+        {renderSectionHeader(
+          "detection",
+          "Parametres de detection",
+          "Sensibilite et seuils",
+        )}
         {expandedSection === "detection" && (
           <View
             style={{
@@ -168,12 +233,23 @@ export default function ProfileScreen() {
               marginBottom: 12,
             }}
           >
-            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.foreground, marginBottom: 8 }}>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "600",
+                color: colors.foreground,
+                marginBottom: 8,
+              }}
+            >
               Sensibilite de detection
             </Text>
             <View className="flex-row gap-2 mb-4">
               {(["low", "medium", "high"] as const).map((level) => {
-                const labels = { low: "Faible", medium: "Moyenne", high: "Haute" };
+                const labels = {
+                  low: "Faible",
+                  medium: "Moyenne",
+                  high: "Haute",
+                };
                 const descriptions = {
                   low: "Moins d'alertes, risque de manquer des crises",
                   medium: "Equilibre entre detection et fausses alertes",
@@ -191,10 +267,14 @@ export default function ProfileScreen() {
                         borderRadius: 10,
                         alignItems: "center",
                         backgroundColor:
-                          settings.sensitivity === level ? colors.primary : colors.surface,
+                          settings.sensitivity === level
+                            ? colors.primary
+                            : colors.surface,
                         borderWidth: 1,
                         borderColor:
-                          settings.sensitivity === level ? colors.primary : colors.border,
+                          settings.sensitivity === level
+                            ? colors.primary
+                            : colors.border,
                         opacity: pressed ? 0.85 : 1,
                       },
                     ]}
@@ -203,7 +283,10 @@ export default function ProfileScreen() {
                       style={{
                         fontSize: 13,
                         fontWeight: "700",
-                        color: settings.sensitivity === level ? "#FFFFFF" : colors.foreground,
+                        color:
+                          settings.sensitivity === level
+                            ? "#FFFFFF"
+                            : colors.foreground,
                       }}
                     >
                       {labels[level]}
@@ -212,15 +295,24 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
-            <Text style={{ fontSize: 12, color: colors.muted, marginBottom: 16 }}>
+            <Text
+              style={{ fontSize: 12, color: colors.muted, marginBottom: 16 }}
+            >
               {settings.sensitivity === "low"
                 ? "Moins d'alertes, risque de manquer des crises"
                 : settings.sensitivity === "medium"
-                ? "Equilibre entre detection et fausses alertes"
-                : "Plus d'alertes, risque de fausses alertes"}
+                  ? "Equilibre entre detection et fausses alertes"
+                  : "Plus d'alertes, risque de fausses alertes"}
             </Text>
 
-            <Text style={{ fontSize: 13, fontWeight: "600", color: colors.foreground, marginBottom: 8 }}>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "600",
+                color: colors.foreground,
+                marginBottom: 8,
+              }}
+            >
               Duree seuil (secondes)
             </Text>
             <View className="flex-row gap-2 mb-2">
@@ -235,10 +327,14 @@ export default function ProfileScreen() {
                       borderRadius: 10,
                       alignItems: "center",
                       backgroundColor:
-                        settings.thresholdDuration === val ? colors.primary : colors.surface,
+                        settings.thresholdDuration === val
+                          ? colors.primary
+                          : colors.surface,
                       borderWidth: 1,
                       borderColor:
-                        settings.thresholdDuration === val ? colors.primary : colors.border,
+                        settings.thresholdDuration === val
+                          ? colors.primary
+                          : colors.border,
                       opacity: pressed ? 0.85 : 1,
                     },
                   ]}
@@ -247,7 +343,10 @@ export default function ProfileScreen() {
                     style={{
                       fontSize: 13,
                       fontWeight: "600",
-                      color: settings.thresholdDuration === val ? "#FFFFFF" : colors.foreground,
+                      color:
+                        settings.thresholdDuration === val
+                          ? "#FFFFFF"
+                          : colors.foreground,
                     }}
                   >
                     {val}s
@@ -262,7 +361,11 @@ export default function ProfileScreen() {
         )}
 
         {/* Preferences Section */}
-        {renderSectionHeader("preferences", "Preferences", "Notifications, vibration, son")}
+        {renderSectionHeader(
+          "preferences",
+          "Preferences",
+          "Notifications, vibration, son",
+        )}
         {expandedSection === "preferences" && (
           <View
             style={{
@@ -278,7 +381,13 @@ export default function ProfileScreen() {
           >
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-1">
-                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "600",
+                    color: colors.foreground,
+                  }}
+                >
                   Son d'alarme
                 </Text>
                 <Text style={{ fontSize: 12, color: colors.muted }}>
@@ -288,14 +397,25 @@ export default function ProfileScreen() {
               <Switch
                 value={settings.soundEnabled}
                 onValueChange={(val) => updateSettings("soundEnabled", val)}
-                trackColor={{ false: colors.border, true: colors.primary + "80" }}
-                thumbColor={settings.soundEnabled ? colors.primary : colors.muted}
+                trackColor={{
+                  false: colors.border,
+                  true: colors.primary + "80",
+                }}
+                thumbColor={
+                  settings.soundEnabled ? colors.primary : colors.muted
+                }
               />
             </View>
 
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-1">
-                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "600",
+                    color: colors.foreground,
+                  }}
+                >
                   Vibration
                 </Text>
                 <Text style={{ fontSize: 12, color: colors.muted }}>
@@ -305,14 +425,25 @@ export default function ProfileScreen() {
               <Switch
                 value={settings.vibrationEnabled}
                 onValueChange={(val) => updateSettings("vibrationEnabled", val)}
-                trackColor={{ false: colors.border, true: colors.primary + "80" }}
-                thumbColor={settings.vibrationEnabled ? colors.primary : colors.muted}
+                trackColor={{
+                  false: colors.border,
+                  true: colors.primary + "80",
+                }}
+                thumbColor={
+                  settings.vibrationEnabled ? colors.primary : colors.muted
+                }
               />
             </View>
 
             <View className="flex-row justify-between items-center">
               <View className="flex-1">
-                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "600",
+                    color: colors.foreground,
+                  }}
+                >
                   Appel automatique
                 </Text>
                 <Text style={{ fontSize: 12, color: colors.muted }}>
@@ -322,8 +453,13 @@ export default function ProfileScreen() {
               <Switch
                 value={settings.autoCallEnabled}
                 onValueChange={(val) => updateSettings("autoCallEnabled", val)}
-                trackColor={{ false: colors.border, true: colors.primary + "80" }}
-                thumbColor={settings.autoCallEnabled ? colors.primary : colors.muted}
+                trackColor={{
+                  false: colors.border,
+                  true: colors.primary + "80",
+                }}
+                thumbColor={
+                  settings.autoCallEnabled ? colors.primary : colors.muted
+                }
               />
             </View>
           </View>
@@ -348,10 +484,16 @@ export default function ProfileScreen() {
               justifyContent: "space-between",
             }}
           >
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+            >
               <Text style={{ fontSize: 20 }}>🌙</Text>
               <View>
-                <Text style={{ fontSize: 14, fontWeight: "700", color: "#A29BFE" }}>Mode nuit</Text>
+                <Text
+                  style={{ fontSize: 14, fontWeight: "700", color: "#A29BFE" }}
+                >
+                  Mode nuit
+                </Text>
                 <Text style={{ fontSize: 12, color: "#6C5CE7", marginTop: 2 }}>
                   {state.nightModeSettings?.autoActivate
                     ? `Activation auto : ${state.nightModeSettings.startTime} - ${state.nightModeSettings.endTime}`
@@ -368,7 +510,9 @@ export default function ProfileScreen() {
                 })
               }
               trackColor={{ false: "#333", true: "#6C5CE7" }}
-              thumbColor={state.nightModeSettings?.autoActivate ? "#A29BFE" : "#555"}
+              thumbColor={
+                state.nightModeSettings?.autoActivate ? "#A29BFE" : "#555"
+              }
             />
           </View>
         </Pressable>
@@ -384,15 +528,23 @@ export default function ProfileScreen() {
             marginTop: 8,
           }}
         >
-          <Text style={{ fontSize: 14, fontWeight: "700", color: colors.primary, marginBottom: 6 }}>
-            A propos d'EpiGuard
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: "700",
+              color: colors.primary,
+              marginBottom: 6,
+            }}
+          >
+            A propos de ProxiVeille
           </Text>
           <Text style={{ fontSize: 13, color: colors.muted, lineHeight: 20 }}>
-            EpiGuard utilise les capteurs de votre smartphone (accelerometre et gyroscope) pour
-            detecter les mouvements caracteristiques des crises tonico-cloniques. L'algorithme
-            analyse les frequences de mouvement dans la plage 3-8 Hz.{"\n\n"}
-            Cette application ne remplace pas un avis medical. Consultez votre neurologue pour
-            un suivi adapte.
+            ProxiVeille utilise les capteurs de votre smartphone (accelerometre
+            et gyroscope) pour detecter les mouvements caracteristiques des
+            crises tonico-cloniques. L'algorithme analyse les frequences de
+            mouvement dans la plage 3-8 Hz.{"\n\n"}
+            Cette application ne remplace pas un avis medical. Consultez votre
+            neurologue pour un suivi adapte.
           </Text>
         </View>
       </ScrollView>

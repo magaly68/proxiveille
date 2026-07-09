@@ -1,6 +1,6 @@
 import Twilio from "twilio";
 
-// Twilio SMS Service for EpiGuard
+// Twilio SMS Service for ProxiVeille
 // Sends emergency SMS alerts to contacts when a seizure is detected
 
 interface SendSmsParams {
@@ -102,7 +102,7 @@ function getTwilioClient() {
 
   if (!accountSid || !authToken) {
     throw new Error(
-      "Twilio credentials not configured. Please set TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN."
+      "Twilio credentials not configured. Please set TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.",
     );
   }
 
@@ -113,7 +113,7 @@ function getTwilioPhoneNumber(): string {
   const phoneNumber = process.env.TWILIO_PHONE_NUMBER;
   if (!phoneNumber) {
     throw new Error(
-      "Twilio phone number not configured. Please set TWILIO_PHONE_NUMBER."
+      "Twilio phone number not configured. Please set TWILIO_PHONE_NUMBER.",
     );
   }
 
@@ -182,7 +182,7 @@ function formatIntensity(intensity: "low" | "medium" | "high"): string {
 function formatEmergencySms(
   patientName: string,
   seizureInfo: SendBulkSmsParams["seizureInfo"],
-  location?: string
+  location?: string,
 ): string {
   const date = new Date(seizureInfo.timestamp);
   const timeStr = date.toLocaleTimeString("fr-FR", {
@@ -191,7 +191,7 @@ function formatEmergencySms(
   });
   const dateStr = date.toLocaleDateString("fr-FR");
 
-  let message = `ALERTE EPIGUARD - Crise d'epilepsie detectee !\n\n`;
+  let message = `ALERTE PROXIVEILLE - Crise d'epilepsie detectee !\n\n`;
   message += `Patient : ${patientName || "Non renseigne"}\n`;
   message += `Date : ${dateStr} a ${timeStr}\n`;
   message += `Intensite : ${formatIntensity(seizureInfo.intensity)}\n`;
@@ -215,7 +215,7 @@ function formatEmergencySms(
   }
 
   message += `\nVeuillez contacter ${patientName || "le patient"} ou les services d'urgence si necessaire.`;
-  message += `\n\n-- Envoye par EpiGuard`;
+  message += `\n\n-- Envoye par ProxiVeille`;
 
   return message;
 }
@@ -224,7 +224,7 @@ function formatEmergencySms(
  * Send emergency SMS to all contacts
  */
 export async function sendBulkEmergencySms(
-  params: SendBulkSmsParams
+  params: SendBulkSmsParams,
 ): Promise<BulkSmsResult> {
   const { recipients, patientName, seizureInfo, location } = params;
 
@@ -241,7 +241,7 @@ export async function sendBulkEmergencySms(
         phone: recipient.phone,
         ...result,
       };
-    })
+    }),
   );
 
   const processedResults = results.map((r) => {
@@ -260,7 +260,7 @@ export async function sendBulkEmergencySms(
   const totalFailed = processedResults.filter((r) => !r.success).length;
 
   console.log(
-    `[SMS] Bulk send complete: ${totalSent} sent, ${totalFailed} failed`
+    `[SMS] Bulk send complete: ${totalSent} sent, ${totalFailed} failed`,
   );
 
   return {
@@ -305,7 +305,7 @@ export async function verifyTwilioConfig(): Promise<SmsConfigResult> {
     });
     const senderNumber = incomingNumbers[0] as any;
     const senderSmsCapable = Boolean(
-      senderNumber?.capabilities?.SMS ?? senderNumber?.capabilities?.sms
+      senderNumber?.capabilities?.SMS ?? senderNumber?.capabilities?.sms,
     );
     const isTrial = String((account as any)?.type ?? "")
       .toLowerCase()
