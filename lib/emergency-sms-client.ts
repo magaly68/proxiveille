@@ -1,11 +1,12 @@
-import { Platform } from "react-native";
+import { Linking, Platform } from "react-native";
+import { FEATURES } from "@/shared/const";
 import { getApiBaseUrl } from "@/constants/oauth";
 import {
   sendSmsSentNotification,
   sendSmsNotConfiguredNotification,
   sendEmergencyContactsAlertedNotification,
 } from "./notification-service";
-import { getEmergencyLocation } from "./location-service";
+import { getEmergencyLocation, getQuickLocation } from "./location-service";
 
 interface EmergencyContact {
   name: string;
@@ -41,6 +42,9 @@ export async function sendEmergencySmsToContacts(
   seizureInfo: SeizureInfo,
   location?: string
 ): Promise<SmsResult | null> {
+  // SMS serveur (Twilio) desactive : l'appelant passe par openNativeEmergencySms.
+  if (!FEATURES.serverSms) return null;
+
   const apiBaseUrl = getApiBaseUrl();
 
   // Filter contacts that have phone numbers
@@ -229,5 +233,48 @@ export async function sendTestSms(
       success: false,
       error: error.message || "Failed to send test SMS",
     };
+  }
+}
+
+const NATIVE_SMS_GPS_TIMEOUT_MS = 8000;
+
+/**
+ * Ouvre l'app SMS native avec le message d'alerte pre-rempli et, si possible,
+ * un lien Google Maps vers la position actuelle.
+ * Aucune donnee n'est envoyee a un serveur : l'utilisateur appuie sur "Envoyer".
+ * La recherche GPS est limitee a quelques secondes pour ne pas retarder l'alerte.
+ */
+export async function openNativeEmergencySms(
+  phones: string[],
+  baseMessage: string
+): Promise<boolean> {
+  const validPhones = phones.map((p) => p.trim()).filter((p) => p.length > 0);
+  if (validPhones.length === 0) return false;
+
+  let message = baseMessage;
+  try {
+    const gps = await Promise.race([
+      getQuickLocation(),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), NATIVE_SMS_GPS_TIMEOUT_MS)),
+    ]);
+    if (gps && gps.success && gps.googleMapsUrl) {
+      message = `${baseMessage}\nMa position : ${gps.googleMapsUrl}`;
+    }
+  } catch {
+    // La position est optionnelle : on envoie le message sans elle.
+  }
+
+  const recipients = validPhones.join(",");
+  const body = encodeURIComponent(message);
+  const smsUrl =
+    Platform.OS === "ios" ? `sms:${recipients}&body=${body}` : `sms:${recipients}?body=${body}`;
+
+  try {
+    const supported = await Linking.canOpenURL(smsUrl);
+    if (!supported) return false;
+    await Linking.openURL(smsUrl);
+    return true;
+  } catch {
+    return false;
   }
 }

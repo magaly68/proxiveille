@@ -2,11 +2,26 @@ import { z } from "zod";
 import { COOKIE_NAME } from "../shared/const.js";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
+import { TRPCError } from "@trpc/server";
 import { publicProcedure, router } from "./_core/trpc";
 import {
   sendBulkEmergencySms,
   verifyTwilioConfig,
 } from "./sms-service";
+
+/**
+ * Les endpoints d'envoi de SMS ne sont pas authentifies : exposes tels quels,
+ * n'importe qui pourrait envoyer des SMS (factures) via le compte Twilio.
+ * Ils sont donc desactives tant que ENABLE_SMS_ENDPOINTS !== "true".
+ * A reactiver uniquement apres avoir ajoute une authentification par appareil
+ * et une limite de debit.
+ */
+const smsProcedure = publicProcedure.use(({ next }) => {
+  if (process.env.ENABLE_SMS_ENDPOINTS !== "true") {
+    throw new TRPCError({ code: "FORBIDDEN", message: "SMS endpoints disabled" });
+  }
+  return next();
+});
 
 export const appRouter = router({
   system: systemRouter,
@@ -29,7 +44,7 @@ export const appRouter = router({
     }),
 
     // Send emergency SMS to all contacts
-    sendEmergencySms: publicProcedure
+    sendEmergencySms: smsProcedure
       .input(
         z.object({
           recipients: z.array(
@@ -57,7 +72,7 @@ export const appRouter = router({
       }),
 
     // Send a single test SMS to verify configuration
-    sendTestSms: publicProcedure
+    sendTestSms: smsProcedure
       .input(
         z.object({
           to: z.string(),

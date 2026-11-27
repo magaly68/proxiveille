@@ -19,7 +19,7 @@ const timestamp = bundleId.split(".").pop()?.replace(/^t/, "") ?? "";
 const schemeFromBundleId = `manus${timestamp}`;
 
 const env = {
-  appName: "EpiGuard",
+  appName: "ProxiVeille",
   appSlug: "epilepsy-guard",
   logoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310419663032625063/DSxYszaYCKpUMzQdsJmyhQ/epiguard-icon-ZcRGAKr5qNefo6gbnSk896.png",
   scheme: schemeFromBundleId,
@@ -31,7 +31,7 @@ const config: ExpoConfig = {
   name: env.appName,
   slug: env.appSlug,
   platforms: ["android"],
-  version: "1.0.1",
+  version: "1.1.0",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
@@ -54,7 +54,25 @@ const config: ExpoConfig = {
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     package: env.androidPackage,
-    
+    // Permissions inutiles pour la version actuelle (alerte manuelle, journal,
+    // traitement). Les retirer evite des declarations supplementaires sur
+    // Google Play (service de premier plan, micro, superposition d'ecran...).
+    blockedPermissions: [
+      "android.permission.RECORD_AUDIO",
+      "android.permission.MODIFY_AUDIO_SETTINGS",
+      "android.permission.FOREGROUND_SERVICE",
+      "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+      "android.permission.SYSTEM_ALERT_WINDOW",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+      "android.permission.ACCESS_BACKGROUND_LOCATION",
+      "android.permission.HIGH_SAMPLING_RATE_SENSORS",
+      "android.permission.BLUETOOTH",
+      "android.permission.BLUETOOTH_ADMIN",
+      "android.permission.BLUETOOTH_SCAN",
+      "android.permission.BLUETOOTH_CONNECT",
+    ],
+
     intentFilters: [
       {
         action: "VIEW",
@@ -74,12 +92,8 @@ const config: ExpoConfig = {
     "expo-router",
     "expo-background-task",
     ["expo-location", {
-      locationAlwaysAndWhenInUsePermission: "EpiGuard a besoin de votre position pour l'inclure dans les alertes d'urgence envoyees a vos proches.",
-      locationWhenInUsePermission: "EpiGuard a besoin de votre position pour l'inclure dans les alertes d'urgence.",
+      locationWhenInUsePermission: "ProxiVeille utilise votre position uniquement pour l'ajouter au SMS d'alerte envoye a vos proches.",
     }],
-    
-    ["expo-audio", { microphonePermission: "Allow $(PRODUCT_NAME) to access your microphone." }],
-    ["expo-video", { supportsBackgroundPlayback: true, supportsPictureInPicture: true }],
     ["expo-splash-screen", {
       image: "./assets/images/splash-icon.png",
       imageWidth: 200,

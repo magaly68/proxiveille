@@ -68,3 +68,6 @@ Thumbs.db
 
 # Webdev artifacts (checkpoint zips, migrations, etc.)
 .webdev/
+
+# Cles de signature Android : ne jamais commiter
+*.keystore

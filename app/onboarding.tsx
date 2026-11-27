@@ -1,3 +1,4 @@
+import { FEATURES, APP_DISPLAY_NAME } from "@/shared/const";
 import { useState, useCallback, useRef } from "react";
 import {
   Text,
@@ -20,7 +21,9 @@ const ONBOARDING_KEY = "@epiguard_onboarding_done";
 
 type Step = "welcome" | "profile" | "contacts" | "settings" | "done";
 
-const STEPS: Step[] = ["welcome", "profile", "contacts", "settings", "done"];
+const STEPS: Step[] = FEATURES.autoDetection
+  ? ["welcome", "profile", "contacts", "settings", "done"]
+  : ["welcome", "profile", "contacts", "done"];
 
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -305,7 +308,7 @@ export default function OnboardingScreen() {
           marginBottom: 12,
         }}
       >
-        Bienvenue sur EpiGuard
+        Bienvenue sur {APP_DISPLAY_NAME}
       </Text>
       <Text
         style={{
@@ -317,8 +320,9 @@ export default function OnboardingScreen() {
           marginBottom: 8,
         }}
       >
-        Votre compagnon de surveillance des crises d'epilepsie. Configurons ensemble votre
-        application en quelques etapes.
+        {FEATURES.autoDetection
+          ? "Votre compagnon de surveillance des crises d'epilepsie. Configurons ensemble votre application en quelques etapes."
+          : "Prevenez vos proches en un geste en cas de malaise, suivez votre traitement et gardez un journal de vos malaises. Configurons ensemble votre application en quelques etapes."}
       </Text>
       <Text
         style={{
@@ -714,8 +718,9 @@ export default function OnboardingScreen() {
           marginBottom: 8,
         }}
       >
-        Votre profil medical et vos contacts d'urgence sont configures. Vous pouvez maintenant
-        activer la surveillance.
+        {FEATURES.autoDetection
+          ? "Votre profil medical et vos contacts d'urgence sont configures. Vous pouvez maintenant activer la surveillance."
+          : "Votre profil medical et vos contacts d'urgence sont configures. Le bouton SOS est pret a l'emploi."}
       </Text>
 
       {/* Summary */}
@@ -753,6 +758,8 @@ export default function OnboardingScreen() {
               {state.emergencyContacts.length} configure(s)
             </Text>
           </View>
+          {FEATURES.autoDetection && (
+            <>
           <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
             <Text style={{ fontSize: 13, color: colors.muted }}>Sensibilite</Text>
             <Text style={{ fontSize: 13, fontWeight: "500", color: colors.foreground }}>
@@ -765,6 +772,8 @@ export default function OnboardingScreen() {
               {state.detectionSettings.autoCallEnabled ? "Active" : "Desactive"}
             </Text>
           </View>
+            </>
+          )}
         </View>
       </View>
 
@@ -796,7 +805,7 @@ export default function OnboardingScreen() {
           ]}
         >
           <Text style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "700" }}>
-            Commencer la surveillance
+            {FEATURES.autoDetection ? "Commencer la surveillance" : "Commencer"}
           </Text>
         </Pressable>
       </View>

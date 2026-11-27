@@ -15,11 +15,9 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useAppState, type EmergencyContact } from "@/lib/app-context";
 import * as Haptics from "expo-haptics";
-import {
-  checkSmsConfiguration,
-  sendEmergencySmsToContacts,
-  sendTestSms,
-} from "@/lib/emergency-sms-client";
+import { checkSmsConfiguration, sendTestSms } from "@/lib/emergency-sms-client";
+import { useSos } from "@/hooks/use-sos";
+import { FEATURES } from "@/shared/const";
 
 export default function EmergencyScreen() {
   const colors = useColors();
@@ -36,7 +34,7 @@ export default function EmergencyScreen() {
   const [smsConfigMessage, setSmsConfigMessage] = useState<string | null>(null);
   const [smsChecking, setSmsChecking] = useState(false);
   const [testingSms, setTestingSms] = useState(false);
-  const [sosLoading, setSosLoading] = useState(false);
+  const { triggerSos: handleSOS, sosLoading } = useSos();
 
   const checkSmsConfig = useCallback(async () => {
     setSmsChecking(true);
@@ -52,9 +50,9 @@ export default function EmergencyScreen() {
     }
   }, []);
 
-  // Check SMS configuration on mount
+  // Check SMS configuration on mount (SMS serveur uniquement)
   useEffect(() => {
-    checkSmsConfig();
+    if (FEATURES.serverSms) checkSmsConfig();
   }, [checkSmsConfig]);
 
   const handleAddContact = useCallback(() => {
@@ -96,82 +94,6 @@ export default function EmergencyScreen() {
     });
   }, []);
 
-  const handleSOS = useCallback(async () => {
-    if (Platform.OS !== "web") {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    }
-    if (state.emergencyContacts.length === 0) {
-      if (Platform.OS === "web") {
-        alert("Aucun contact d'urgence configure. Ajoutez un contact d'abord.");
-      } else {
-        Alert.alert(
-          "Aucun contact",
-          "Ajoutez au moins un contact d'urgence avant d'utiliser le bouton SOS."
-        );
-      }
-      return;
-    }
-
-    setSosLoading(true);
-
-    // Call first contact
-    const firstContact = state.emergencyContacts[0];
-    handleCallContact(firstContact.phone);
-
-    // Send SMS to all contacts via Twilio
-    const patientName = state.medicalProfile.name || "Patient EpiGuard";
-    try {
-      const result = await sendEmergencySmsToContacts(
-        state.emergencyContacts.map((c) => ({ name: c.name, phone: c.phone })),
-        patientName,
-        {
-          timestamp: Date.now(),
-          intensity: "high",
-          detectionSource: "manual",
-        }
-      );
-
-      if (!result || result.totalSent === 0) {
-        // Fallback to native SMS
-        const phones = state.emergencyContacts.map((c) => c.phone).join(",");
-        const message = encodeURIComponent(state.detectionSettings.alertMessage);
-        const smsUrl =
-          Platform.OS === "ios"
-            ? `sms:${phones}&body=${message}`
-            : `sms:${phones}?body=${message}`;
-        Linking.canOpenURL(smsUrl).then((supported) => {
-          if (supported) Linking.openURL(smsUrl);
-        });
-      }
-    } catch {
-      // Fallback on error
-      const phones = state.emergencyContacts.map((c) => c.phone).join(",");
-      const message = encodeURIComponent(state.detectionSettings.alertMessage);
-      const smsUrl =
-        Platform.OS === "ios"
-          ? `sms:${phones}&body=${message}`
-          : `sms:${phones}?body=${message}`;
-      Linking.canOpenURL(smsUrl).then((supported) => {
-        if (supported) Linking.openURL(smsUrl);
-      });
-    }
-
-    // Record the SOS event
-    dispatch({
-      type: "ADD_SEIZURE",
-      payload: {
-        id: Date.now().toString(),
-        timestamp: Date.now(),
-        duration: 0,
-        intensity: "high",
-        notes: "Alerte SOS manuelle declenchee - SMS envoyes aux contacts",
-        wasManual: true,
-        wasCancelled: false,
-      },
-    });
-
-    setSosLoading(false);
-  }, [state.emergencyContacts, state.medicalProfile.name, state.detectionSettings.alertMessage, dispatch, handleCallContact]);
 
   const handleTestSms = useCallback(async () => {
     if (state.emergencyContacts.length === 0) {
@@ -277,10 +199,12 @@ export default function EmergencyScreen() {
       <View className="pt-4 mb-4">
         <Text className="text-2xl font-bold text-foreground">Urgence</Text>
         <Text className="text-sm text-muted mt-1">
-          Contacts alertes en cas de crise
+          Contacts prevenus en cas de malaise
         </Text>
       </View>
 
+      {FEATURES.serverSms && (
+        <>
       {/* SMS Configuration Status */}
       <View
         style={{
@@ -373,6 +297,8 @@ export default function EmergencyScreen() {
           </Text>
         )}
       </Pressable>
+        </>
+      )}
 
       {/* SOS Button */}
       <Pressable
@@ -403,7 +329,9 @@ export default function EmergencyScreen() {
                 marginTop: 4,
               }}
             >
-              Appeler + envoyer SMS a tous les contacts
+              {FEATURES.serverSms
+                ? "Appeler + envoyer SMS a tous les contacts"
+                : "Preparer un SMS d'alerte avec votre position pour tous vos contacts"}
             </Text>
           </>
         )}
@@ -662,8 +590,9 @@ export default function EmergencyScreen() {
                 marginBottom: 12,
               }}
             >
-              Ce message sera utilise en secours si Twilio n'est pas configure.
-              Avec Twilio, un message detaille est genere automatiquement.
+              {FEATURES.serverSms
+                ? "Ce message sera utilise en secours si Twilio n'est pas configure. Avec Twilio, un message detaille est genere automatiquement."
+                : "Ce message est pre-rempli dans votre application SMS lors d'une alerte SOS. Votre position GPS est ajoutee automatiquement si elle est disponible."}
             </Text>
             <TextInput
               value={alertMessage}

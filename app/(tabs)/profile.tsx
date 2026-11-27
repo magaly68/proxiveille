@@ -12,6 +12,7 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useAppState } from "@/lib/app-context";
 import * as Haptics from "expo-haptics";
+import { FEATURES, APP_DISPLAY_NAME } from "@/shared/const";
 
 type Section = "personal" | "medical" | "detection" | "preferences";
 
@@ -153,6 +154,9 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {/* Detection, preferences d'alarme et mode nuit : detection automatique uniquement */}
+        {FEATURES.autoDetection && (
+          <>
         {/* Detection Settings Section */}
         {renderSectionHeader("detection", "Parametres de detection", "Sensibilite et seuils")}
         {expandedSection === "detection" && (
@@ -372,6 +376,8 @@ export default function ProfileScreen() {
             />
           </View>
         </Pressable>
+          </>
+        )}
 
         {/* Info section */}
         <View
@@ -385,14 +391,15 @@ export default function ProfileScreen() {
           }}
         >
           <Text style={{ fontSize: 14, fontWeight: "700", color: colors.primary, marginBottom: 6 }}>
-            A propos d'EpiGuard
+            A propos de {APP_DISPLAY_NAME}
           </Text>
           <Text style={{ fontSize: 13, color: colors.muted, lineHeight: 20 }}>
-            EpiGuard utilise les capteurs de votre smartphone (accelerometre et gyroscope) pour
-            detecter les mouvements caracteristiques des crises tonico-cloniques. L'algorithme
-            analyse les frequences de mouvement dans la plage 3-8 Hz.{"\n\n"}
-            Cette application ne remplace pas un avis medical. Consultez votre neurologue pour
-            un suivi adapte.
+            {FEATURES.autoDetection
+              ? "L'application utilise les capteurs de votre smartphone (accelerometre et gyroscope) pour detecter les mouvements caracteristiques des crises tonico-cloniques. L'algorithme analyse les frequences de mouvement dans la plage 3-8 Hz."
+              : "L'application vous permet de prevenir vos proches en un geste en cas de malaise, de suivre votre traitement et de tenir un journal a partager avec votre medecin. Vos donnees restent sur votre telephone."}
+            {"\n\n"}
+            Cette application n'est pas un dispositif medical et ne remplace pas un avis medical.
+            Consultez votre medecin pour un suivi adapte.
           </Text>
         </View>
       </ScrollView>
