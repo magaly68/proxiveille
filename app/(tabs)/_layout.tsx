@@ -5,6 +5,7 @@ import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Platform } from "react-native";
 import { useColors } from "@/hooks/use-colors";
+import { FEATURES } from "@/shared/const";
 
 export default function TabLayout() {
   const colors = useColors();
@@ -32,7 +33,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Accueil",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="shield.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -60,6 +61,8 @@ export default function TabLayout() {
         name="watch"
         options={{
           title: "Montre",
+          // Montre connectee : uniquement avec la detection automatique
+          href: FEATURES.autoDetection ? undefined : null,
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="applewatch" color={color} />,
         }}
       />

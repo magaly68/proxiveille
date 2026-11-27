@@ -21,10 +21,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { trpc, createTRPCClient } from "@/lib/trpc";
 import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
 import { AppProvider } from "@/lib/app-context";
-import { defineBackgroundDetectionTask } from "@/lib/background-detection";
+import {
+  defineBackgroundDetectionTask,
+  unregisterBackgroundDetection,
+} from "@/lib/background-detection";
+import { FEATURES } from "@/shared/const";
 
-// MUST be called in global scope (outside React components)
+// MUST be called in global scope (outside React components).
+// Toujours definie : une version precedente a pu enregistrer la tache aupres
+// du systeme, il faut pouvoir la desenregistrer proprement.
 defineBackgroundDetectionTask();
+
+if (!FEATURES.autoDetection && Platform.OS !== "web") {
+  // Detection automatique desactivee : on retire une eventuelle surveillance
+  // en arriere-plan heritee d'une version precedente.
+  unregisterBackgroundDetection().catch(() => {});
+}
 
 const ONBOARDING_KEY = "@epiguard_onboarding_done";
 

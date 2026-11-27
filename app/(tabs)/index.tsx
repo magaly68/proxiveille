@@ -23,6 +23,8 @@ import {
 } from "@/lib/notification-service";
 import { sendEmergencySmsToContacts } from "@/lib/emergency-sms-client";
 import { requestLocationPermission, checkLocationPermission, getEmergencyLocation } from "@/lib/location-service";
+import { useSos } from "@/hooks/use-sos";
+import { FEATURES, APP_DISPLAY_NAME } from "@/shared/const";
 
 const STATUS_CONFIG = {
   inactive: {
@@ -82,7 +84,7 @@ function calculateIntensity(sensorData: {
   return "low";
 }
 
-export default function HomeScreen() {
+function MonitoringHomeScreen() {
   const colors = useColors();
   const { state, dispatch } = useAppState();
   const { state: watchState } = useSmartWatch();
@@ -360,7 +362,7 @@ export default function HomeScreen() {
         <View className="flex-1 items-center pt-4 gap-6">
           {/* Header */}
           <View className="items-center gap-1">
-            <Text className="text-2xl font-bold text-foreground">EpiGuard</Text>
+            <Text className="text-2xl font-bold text-foreground">{APP_DISPLAY_NAME}</Text>
             <Text className="text-sm text-muted">Detection des crises d'epilepsie</Text>
           </View>
 
@@ -648,4 +650,190 @@ export default function HomeScreen() {
       </ScrollView>
     </ScreenContainer>
   );
+}
+
+/**
+ * Accueil sans detection automatique : bouton SOS manuel, acces rapide au
+ * journal et au traitement, resume de la configuration.
+ */
+function SimpleHomeScreen() {
+  const colors = useColors();
+  const { state } = useAppState();
+  const router = useRouter();
+  const { triggerSos, sosLoading } = useSos();
+  const [gpsEnabled, setGpsEnabled] = useState(false);
+
+  useEffect(() => {
+    checkLocationPermission().then(setGpsEnabled);
+  }, []);
+
+  const handleEnableGps = useCallback(async () => {
+    const granted = await requestLocationPermission();
+    setGpsEnabled(granted);
+  }, []);
+
+  const lastEvent = state.seizureEvents.length > 0 ? state.seizureEvents[0] : null;
+  const lastEventText = lastEvent
+    ? new Date(lastEvent.timestamp).toLocaleDateString("fr-FR", {
+        day: "numeric",
+        month: "long",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "Aucun malaise enregistre";
+
+  const now = new Date();
+  const eventsThisMonth = state.seizureEvents.filter((e) => {
+    const d = new Date(e.timestamp);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+
+  const activeReminders = state.medicationReminders.filter((r) => r.enabled !== false).length;
+
+  return (
+    <ScreenContainer className="px-6">
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+        <View className="flex-1 items-center pt-4 gap-6">
+          <View className="items-center gap-1">
+            <Text className="text-2xl font-bold text-foreground">{APP_DISPLAY_NAME}</Text>
+            <Text className="text-sm text-muted text-center">
+              Prevenez un proche en un geste en cas de malaise
+            </Text>
+          </View>
+
+          {/* SOS */}
+          <View className="items-center justify-center my-4" style={{ height: 220 }}>
+            <Pressable
+              onPress={triggerSos}
+              disabled={sosLoading}
+              accessibilityRole="button"
+              accessibilityLabel="SOS : prevenir mes contacts d'urgence"
+              style={({ pressed }) => [
+                {
+                  width: 200,
+                  height: 200,
+                  borderRadius: 100,
+                  backgroundColor: colors.error,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  opacity: pressed || sosLoading ? 0.85 : 1,
+                  transform: [{ scale: pressed ? 0.97 : 1 }],
+                },
+              ]}
+            >
+              <Text style={{ fontSize: 40, fontWeight: "800", color: "#FFFFFF" }}>
+                {sosLoading ? "..." : "SOS"}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: "rgba(255,255,255,0.9)",
+                  marginTop: 6,
+                  textAlign: "center",
+                  paddingHorizontal: 24,
+                }}
+              >
+                Prevenir mes contacts
+              </Text>
+            </Pressable>
+          </View>
+
+          {state.emergencyContacts.length === 0 && (
+            <Pressable
+              onPress={() => router.push("/emergency")}
+              className="w-full rounded-xl p-4 border"
+              style={{ backgroundColor: colors.warning + "15", borderColor: colors.warning + "40" }}
+            >
+              <Text style={{ color: colors.warning, fontWeight: "600", fontSize: 14 }}>
+                Aucun contact d'urgence
+              </Text>
+              <Text style={{ color: colors.muted, fontSize: 12, marginTop: 2 }}>
+                Ajoutez un proche pour que le bouton SOS fonctionne ›
+              </Text>
+            </Pressable>
+          )}
+
+          {/* Actions rapides */}
+          <View className="w-full flex-row gap-3">
+            <Pressable
+              onPress={() => router.push("/journal")}
+              className="flex-1 bg-surface rounded-xl p-4 border border-border"
+            >
+              <Text className="text-sm font-semibold text-foreground">Noter un malaise</Text>
+              <Text className="text-xs text-muted mt-1">Journal ›</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => router.push("/medications")}
+              className="flex-1 bg-surface rounded-xl p-4 border border-border"
+            >
+              <Text className="text-sm font-semibold text-foreground">Mon traitement</Text>
+              <Text className="text-xs text-muted mt-1">
+                {activeReminders > 0 ? `${activeReminders} rappel(s) ›` : "Ajouter un rappel ›"}
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Resume */}
+          <View className="w-full gap-3">
+            <View className="w-full bg-surface rounded-xl p-4 border border-border flex-row justify-between items-center">
+              <Text className="text-sm text-muted">Dernier malaise</Text>
+              <Text className="text-sm font-medium text-foreground" style={{ maxWidth: "60%" }} numberOfLines={1}>
+                {lastEventText}
+              </Text>
+            </View>
+
+            <View className="w-full bg-surface rounded-xl p-4 border border-border flex-row justify-between items-center">
+              <Text className="text-sm text-muted">Malaises ce mois</Text>
+              <Text className="text-sm font-semibold text-foreground">{eventsThisMonth}</Text>
+            </View>
+
+            <View className="w-full bg-surface rounded-xl p-4 border border-border flex-row justify-between items-center">
+              <Text className="text-sm text-muted">Contacts d'urgence</Text>
+              <Text className="text-sm font-semibold text-foreground">
+                {state.emergencyContacts.length} configure(s)
+              </Text>
+            </View>
+
+            <Pressable
+              onPress={gpsEnabled ? undefined : handleEnableGps}
+              className="w-full bg-surface rounded-xl p-4 border border-border flex-row justify-between items-center"
+            >
+              <View style={{ flex: 1 }}>
+                <Text className="text-sm text-muted">Position dans le SMS</Text>
+                {!gpsEnabled && (
+                  <Text style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                    Appuyez pour autoriser la localisation
+                  </Text>
+                )}
+              </View>
+              <View className="flex-row items-center gap-2">
+                <View
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: gpsEnabled ? colors.success : colors.warning,
+                  }}
+                />
+                <Text className="text-sm font-medium text-foreground">
+                  {gpsEnabled ? "Activee" : "Non autorisee"}
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+
+          <Text style={{ fontSize: 11, color: colors.muted, textAlign: "center", lineHeight: 16 }}>
+            {APP_DISPLAY_NAME} n'est pas un dispositif medical et ne remplace pas un avis medical.
+            En cas d'urgence vitale, appelez le 15 ou le 112.
+          </Text>
+
+          <View style={{ height: 20 }} />
+        </View>
+      </ScrollView>
+    </ScreenContainer>
+  );
+}
+
+export default function HomeScreen() {
+  return FEATURES.autoDetection ? <MonitoringHomeScreen /> : <SimpleHomeScreen />;
 }
